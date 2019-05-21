@@ -1,20 +1,26 @@
+% @file 	opmit_1_1.m
+% @author	Marcelo A. Marotta, PhD & Jonathan Mendes de Almeida
+% @email	jonathanalmd@gmail.com / jonathan@aluno.unb.br
+% @page     jonyddev.github.io
+% @date     05/20/2019 
+% @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
+% @brief	MatLab code for the problem formalization (Chapter 1, Example 1.1): Shortest Path Problem 
+%           Network Optimization: Continuous and Discrete Models, Dimitri P. Bertsekas, Massachusetts Institute of Technology (MIT)
+
 function [vec, fval, answer, resume, output_a, output_b] = optimal_algorithm1( )
     %% Prototype
     %% Problem formulation
-    %Anonynous function to navigate the vectors 4d and 3d
-    % Reshape cannot work with the logical below since it works with rows first
-    % followed by collumns, use the second definition
-    % nav4d = @(vec, s, m, n, t) vec((s-1)*M*N*T+(m-1)*N*T+(n-1)*T+t );
-    %navCloud = @(s, t) (t-1)*S+s + S*M*N*T;
-    %nav4d = @(s, m, n, t) (t-1)*M*N*S+(n-1)*M*S+(m-1)*S+s;
-    % nav3d = @(m, n, t) (t-1)*M*N+(n-1)*M+m;
     N = 4;
     dest = N;
     source = 1;
+    % Navigation 
+    % Anonynous function to navigate vectors
+    % Reshape cannot work with common reasoning since it works with rows first
+    % followed by collumns, use this definition
+    % Lines first 
+    nav2d = @(m, n) (n-1)*N+m; % Gamma function (annonymous)
     nav2d = @(m, n) (n-1)*N+m;
-    % Number of variable
-    %A[s,m,n,t] + B[s,t]
-    % Lower bound
+
     a_ij= [
           99 10  3 99
           99 99  1 20
@@ -33,8 +39,8 @@ function [vec, fval, answer, resume, output_a, output_b] = optimal_algorithm1( )
 %     ];
     % N constraints (1 constraint for each graph node)
     % NxN colunns 
-    A = zeros(N, N*N);
-    b = zeros(N, 1);
+    Aeq = zeros(N, N*N);
+    beq = zeros(N, 1);
     ihead = 1;
     for i=1:N
         for j=1:N
@@ -42,22 +48,22 @@ function [vec, fval, answer, resume, output_a, output_b] = optimal_algorithm1( )
             nav2d(i,j)
             % Each sum
             % ->
-            A(ihead, nav2d(i,j)) = 1; 
+            Aeq(ihead, nav2d(i,j)) = 1; 
             % <- 
-            A(ihead, nav2d(j,i)) = -1;
+            Aeq(ihead, nav2d(j,i)) = -1;
 
         end
         % For each edge i-j:
         % If Source (i = s) -> 1
         if i == source
-            b(ihead) = 1;
+            beq(ihead) = 1;
         else
             % If Sink (i = t) -> -1
             if i == dest
-                b(ihead) = -1;
+                beq(ihead) = -1;
             % Otherwise -> 0
             else
-                b(ihead) = 0;
+                beq(ihead) = 0;
             end
         end
         ihead=ihead+1;
@@ -70,7 +76,7 @@ function [vec, fval, answer, resume, output_a, output_b] = optimal_algorithm1( )
     u_bound = ones([N*N, 1]);
     l_bound = zeros([N*N, 1]);
 
-    [vec, fval, answer, resume] = intlinprog(f,1:N*N, A, b, [],[],l_bound,u_bound);
+    [vec, fval, answer, resume] = intlinprog(f,1:N*N, [], [], Aeq, beq,l_bound,u_bound);
 
     output_a = reshape(vec, [N,N]);
 
@@ -78,6 +84,6 @@ function [vec, fval, answer, resume, output_a, output_b] = optimal_algorithm1( )
 
     display(output_a);
     display(output_b);
-    display(A);
-    display(b);
+    display(Aeq);
+    display(beq);
 end
