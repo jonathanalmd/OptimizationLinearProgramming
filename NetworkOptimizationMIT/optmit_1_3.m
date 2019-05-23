@@ -2,7 +2,7 @@
 % @file 	opmit_1_2.m
 % @author	Marcelo A. Marotta, PhD & Jonathan Mendes de Almeida
 % @email	jonathanalmd@gmail.com / jonathan@aluno.unb.br
-% @page     jonyddev.github.io
+% @page     jonathanalmd.github.io
 % @date     05/20/2019 
 % @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
 % @brief	MatLab code for the problem formalization (Chapter 1, Example 1.3): The Max-Flow Problem
@@ -29,8 +29,19 @@ function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
          ];
     source = 1;
     dest = 8;
+    N = 6;
+    a = [
+         0 16 13  0  0  0;
+         0  0 10 12  0  0;
+         0  4  0  0 14  0;
+         0  0  9  0  0 20;
+         0  0  0  7  0  4;
+         0  0  0  0  0  0;
+        ];
+    source = 1;
+    dest = 6;
     % Head declaration for matrix navigation
-    head = 1;
+    ihead = 1;
     
     %% Navigation 
     % Anonynous function to navigate vectors
@@ -47,8 +58,6 @@ function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
     beq = zeros([n_lin, 1]);
     
     %% Map the constraints
-    ihead = 1
-
     % N constraints (for each i)       
     for i=1:N
         for j=1:N
@@ -116,10 +125,11 @@ function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
     %% Transform solution into matrix (NxN)
     %output_a = reshape(vec, [N,N]);
     %output_a = vec;
-    output_a = vec2mat(vec,8)
+    output_a = vec2mat(vec,N)
     %% Get final solution: solution matrix (binary matrix) x weight matrix 
     %output_b = output_a .* a;
     output_b = output_a;
     %% Display the solution
-    display(output_a);
+    display(sum(vec));
+   
 end
