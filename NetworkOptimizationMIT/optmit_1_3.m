@@ -8,7 +8,7 @@
 % @brief	MatLab code for the problem formalization (Chapter 1, Example 1.2): The Assignment Problem 
 %           Network Optimization: Continuous and Discrete Models, Dimitri P. Bertsekas, Massachusetts Institute of Technology (MIT)
 
-%% Optimal association function
+%% Function 
 function [vec, fval, answer, resume, output_a, output_b] = optimal_association( )
     %% Description
     % Function Output: vec, fval, answer, resume, output_a, output_b
