@@ -3,10 +3,11 @@
 % @email	jonathanalmd@gmail.com / jonathan@aluno.unb.br
 % @page     jonyddev.github.io
 % @date     05/20/2019 
-% @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
+% @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasilia (UnB)
 % @brief	MatLab code for the problem formalization (Chapter 1, Example 1.1): Shortest Path Problem 
 %           Network Optimization: Continuous and Discrete Models, Dimitri P. Bertsekas, Massachusetts Institute of Technology (MIT)
 
+%% Optimal Shortest Path Algorithm
 function [vec, fval, answer, resume, output_a, output_b] = optimal_algorithm1( )
     %% Prototype
     %% Problem formulation

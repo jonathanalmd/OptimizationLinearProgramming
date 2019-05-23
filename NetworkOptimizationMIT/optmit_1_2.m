@@ -4,12 +4,12 @@
 % @email	jonathanalmd@gmail.com / jonathan@aluno.unb.br
 % @page     jonyddev.github.io
 % @date     05/20/2019 
-% @info     MSc Research at Computer Networks Lab (COMNET) -- University of Bras�lia (UnB)
-% @brief	MatLab code for the problem formalization (Chapter 1, Example 1.2): The Assignment Problem 
+% @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
+% @brief	MatLab code for the problem formalization (Chapter 1, Example 1.3): The Max-Flow Problem
 %           Network Optimization: Continuous and Discrete Models, Dimitri P. Bertsekas, Massachusetts Institute of Technology (MIT)
 
-%% Optimal association function
-function [vec, fval, answer, resume, output_a, output_b] = optimal_association( )
+%% Max-Flow Algorithm
+function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
     %% Description
     % Function Output: vec, fval, answer, resume, output_a, output_b
     % Function Parameters: none
@@ -61,7 +61,7 @@ function [vec, fval, answer, resume, output_a, output_b] = optimal_association( 
         head = head+1;
     end
 
-    %% Map the function
+    %% Map the objective function
     % Transform a_mn matrix to vector 
     f = ones([1, N*N]);
     for m = 1:N
