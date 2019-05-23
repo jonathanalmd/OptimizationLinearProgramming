@@ -1,15 +1,15 @@
 %% Description
 % @file 	opmit_1_2.m
-% @author	Marcelo A. Marotta, PhD & Jonathan Mendes de Almeida
-% @email	jonathanalmd@gmail.com / jonathan@aluno.unb.br
-% @page     jonyddev.github.io
+% @author	Marcelo A. Marotta, PhD (MSc Adivisor) & Jonathan Mendes de Almeida (MSc Student)
+% @email	marcelo dot marotta at unb dot br / jonathanalmd at gmail dot com / jonathan at aluno dot unb dot br
+% @page     jonathanalmd.github.io
 % @date     05/20/2019 
 % @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
 % @brief	MatLab code for the problem formalization (Chapter 1, Example 1.3): The Max-Flow Problem
 %           Network Optimization: Continuous and Discrete Models, Dimitri P. Bertsekas, Massachusetts Institute of Technology (MIT)
 
-%% Max-Flow Algorithm
-function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
+%% Assignment Problem - Linear Programming (LP)  
+function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     %% Description
     % Function Output: vec, fval, answer, resume, output_a, output_b
     % Function Parameters: none
@@ -25,6 +25,7 @@ function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
          10    3    10     5;
          1     4     5     9
          ];
+     
     % Head declaration for matrix navigation
     head = 1;
     
@@ -43,7 +44,7 @@ function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
     beq = ones([2*N, 1]);
     
     %% Map the constraints
-    % First constraint
+    % First constraint: each person has one gift
     % For all n in {1,...,N}
     for n = 1:N
         % For all m in {1,...,M}
@@ -53,7 +54,7 @@ function [vec, fval, answer, resume, output_a, output_b] = max_flow( )
         % Increment Head according to n
         head = head+1;
     end
-    % Second constraint
+    % Second constraint: each gift has one person
     for m = 1:N
         for n = 1:N
             Aeq(head, nav2d(m,n)) = 1;
