@@ -5,7 +5,7 @@
 % @page     jonathanalmd.github.io
 % @date     05/20/2019 
 % @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
-% @brief	MatLab code for the problem formalization (Chapter 1, Example 1.3): The Max-Flow Problem
+% @brief	MatLab code for the problem formalization (Chapter 1, Example 1.3): Assignment Problem
 %           Network Optimization: Continuous and Discrete Models, Dimitri P. Bertsekas, Massachusetts Institute of Technology (MIT)
 
 %% Assignment Problem - Linear Programming (LP)  

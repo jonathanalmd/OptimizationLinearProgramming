@@ -1,11 +1,11 @@
 %% Description
-% @file 	opmit_1_2.m
+% @file 	opmit_1_1.m
 % @author	Marcelo A. Marotta, PhD (MSc Adivisor) & Jonathan Mendes de Almeida (MSc Student)
 % @email	marcelo dot marotta at unb dot br / jonathanalmd at gmail dot com / jonathan at aluno dot unb dot br
 % @page     jonathanalmd.github.io
 % @date     05/20/2019 
 % @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
-% @brief	MatLab code for the problem formalization (Chapter 1, Example 1.3): The Max-Flow Problem
+% @brief	MatLab code for the problem formalization (Chapter 1, Example 1.1): Shortest Path Problem
 %           Network Optimization: Continuous and Discrete Models, Dimitri P. Bertsekas, Massachusetts Institute of Technology (MIT)
 
 %% Optimal Shortest Path - Linear Programming (LP)
