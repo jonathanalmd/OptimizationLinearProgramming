@@ -4,34 +4,29 @@ classdef MDC
         % Position
         x = 0;
         y = 0;
-        % machine class i
-        type = 1;
-        % Processor cycles (P_is)
-        cycles = 1;
-        % Number of cores (N_is)
-        n_cores = 1;
-        % Processor eficiency (Ef_is)
-        eficiency = 1; 
-        % Pricing (A_is)
-        price = 1;
-        
-
+        % Antenna Type (MC = 1, SC = 2)
+        antenna_type = 1;
+        % VMs
+        mdc_vms = [];
     end
     
     methods
-        function obj = MDC(type, position, index)
-            obj.type = type;
+        function obj = MDC(antenna_type, position, index)
+            obj.antenna_type = antenna_type;
             obj.x = position(1);
             obj.y = position(2);
             obj.index = index;
-            if type == 1
-                obj.bandwidth = 10;       %MHz
-                obj.frequency = 2.0;      %GHz Frequency: 2.0 GHz
-                obj.maxpower = 30;        %dBm
-                %Outdoor 0, otherwise: 20+0.5*rand()*min(25, distance)
-                obj.height = 10;          %meters
-                obj.gain = 5;             %dBi Antenna gain + connector loss
-                obj.tti = 0.01;            %TTI of 10 ms
+            % If MacroCell
+            if antenna_type == 1
+                % machineclass, cycles, n_cores, efficiency, price, index
+                obj.mdc_vms = [obj.mdc_vms VM(1, 3*10^9, 8, 4, 20)];
+                obj.mdc_vms = [obj.mdc_vms VM(2, 4*10^9, 16, 8, 30)];
+                obj.mdc_vms = [obj.mdc_vms VM(3, 5*10^9, 32, 16, 40)];
+            % Else SmallCell
+            else
+                obj.mdc_vms = [obj.mdc_vms VM(1, 2*10^9, 4, 2, 30)];
+                obj.mdc_vms = [obj.mdc_vms VM(2, 3*10^9, 8, 4, 50)];
+                obj.mdc_vms = [obj.mdc_vms VM(3, 4*10^9, 16, 8, 90)];
             end
         end
         
