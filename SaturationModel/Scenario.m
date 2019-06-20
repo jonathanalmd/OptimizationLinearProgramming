@@ -194,7 +194,7 @@ classdef Scenario
             position = [obj.dmacroradius*obj.n_sites/2, obj.dmacroradius*obj.n_sites/2]
             obj.center = Antenna(0, position, obj.index);
             % MC MDC (center)
-            obj.mc_mdcs = MDC(1, position, obj.index);
+            obj.mc_mdcs = MDC(1, [position(1)+50 position(2)+50], obj.index);
             obj.index = obj.index+1;
             % Create mc antennas and MDCs
             [obj.macrocells, obj.mc_mdcs, obj.index] = obj.hexaCluster(obj.dmacromacro, obj.center, obj.mc_mdcs, obj.index);
@@ -237,7 +237,7 @@ classdef Scenario
              for i = 2*(0:(obj.n_sites-2))+1 
                 position = [center.x + radius * cos(i*pi/6), center.y + radius * sin(i*pi/6)];
                 % mc MDC: antenna_type, position, index
-                mdc = MDC(1, position, index);
+                mdc = MDC(1, [position(1)+50 position(2)+50], index);
                 ant = Antenna(center.type, position, index);
                 index = index+1;
                 cluster = [cluster ant];
@@ -353,6 +353,7 @@ classdef Scenario
             plot([obj.smallcells.x], [obj.smallcells.y], 'o', 'MarkerSize',4);
             plot([obj.cluster_centers.x], [obj.cluster_centers.y],'r*');
             % plot([obj.ues.x], [obj.ues.y], '.', 'MarkerSize',8);
+            plot([obj.mdcs.x], [obj.mdcs.y], 'square', 'MarkerSize', 8);
             hold off;  
             if obj.n_sites > 1
                 ylim([0 obj.dmacromacro*floor(obj.n_sites/2) ])
