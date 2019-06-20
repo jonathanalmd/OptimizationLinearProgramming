@@ -38,7 +38,11 @@ classdef Scenario
         S_smallcell;
         % S = S_macrocell + S_smallcell
         S;
-        % List of MDCs
+        % MC MDCs
+        mc_mdcs;
+        % SC MDCs
+        sc_mdcs;
+        % List of all MDCs
         mdcs;
 %         % MDCs positions
 %         S_xy;
@@ -187,10 +191,13 @@ classdef Scenario
             obj.dmacroradius = obj.dmacromacro * 0.425;
             % Creating macrocell antennas positioning
             % Centralized antenna
-            obj.center = Antenna(0, [obj.dmacroradius*obj.n_sites/2, obj.dmacroradius*obj.n_sites/2], obj.index);
-            % obj.center = Antenna(0, [750, 750], obj.index);
+            position = [obj.dmacroradius*obj.n_sites/2, obj.dmacroradius*obj.n_sites/2]
+            obj.center = Antenna(0, position, obj.index);
+            % MC MDC (center)
+            obj.mc_mdcs = MDC(1, position, obj.index);
             obj.index = obj.index+1;
-            [obj.macrocells, obj.index, obj.S_xy] = obj.hexaCluster(obj.dmacromacro, obj.center, obj.index);
+            % Create mc antennas and MDCs
+            [obj.macrocells, obj.mc_mdcs, obj.index] = obj.hexaCluster(obj.dmacromacro, obj.center, obj.mc_mdcs, obj.index);
             
             % Spawning rrhs    
             obj.smallcells = [];
@@ -199,11 +206,13 @@ classdef Scenario
                     [scs_aux, cluster_center, obj.index] = obj.spawnAntennas(i, 1, obj.index);
                     obj.cluster_centers = [obj.cluster_centers; cluster_center];
                     obj.smallcells = [obj.smallcells scs_aux];
+                    % SC MDCs
+                    obj.sc_mdcs = [obj.sc_mdcs MDC(2, [cluster_center.x cluster_center.y], obj.index)];
                 end
             end
             
-            % sc MDCs positions = cluster centers positions
-            % obj.S_xy = obj.cluster_centers;
+            % All MDCs
+            obj.mdcs = [obj.mc_mdcs obj.sc_mdcs];
             
             
             
@@ -221,17 +230,18 @@ classdef Scenario
         end
         
         %% Creates a hexagon map structure for an antenna
-        function [cluster, index, mdc_xy] = hexaCluster(obj, radius, center, index)
+        function [cluster, mdcs, index] = hexaCluster(obj, radius, center, centermdc, index)
              cluster = center;
-             mdc_xy = [];
+             mdcs = centermdc;
            % for i = [-1, 1, 2, 3, 5, 6] 45degree
              for i = 2*(0:(obj.n_sites-2))+1 
                 position = [center.x + radius * cos(i*pi/6), center.y + radius * sin(i*pi/6)];
-                % mc MDC position 
-                mdc_xy = [mdc_xy position];
+                % mc MDC: antenna_type, position, index
+                mdc = MDC(1, position, index);
                 ant = Antenna(center.type, position, index);
                 index = index+1;
                 cluster = [cluster ant];
+                mdcs = [mdcs mdc];
             end
         end
         
