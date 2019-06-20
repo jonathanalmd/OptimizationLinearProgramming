@@ -6,8 +6,113 @@ classdef Scenario
     % indicate whether 19 or 7 sites are used when presenting the results.
     % Clusters uniformly random within macro geographical area; 
     properties
-        dmacromacro = 1000;
-%         dmacromacro = 500;
+        %% Basic problem inputs
+        % Number of areas (hexagons) -- Scenario length
+        n_sites = 7;
+        % Time slots
+        T = 24; % 
+
+        %% Antennas
+        % Number of MacroCells antennas per covered area
+        mc_antennas_per_area = 1;
+        % Number of SmallCells clusters per covered area
+        sc_clusters_per_area = 1;
+        % Number of SmallCells antennas per cluster
+        sc_antennas_per_cluster = 4;
+        % Number of Antennas 
+        % M_macrocell = n_sites * mc_antennas_per_area;
+        M_macrocell;
+        % M_smallcell = n_sites * sc_clusters_per_area * sc_antennas_per_cluster;
+        M_smallcell;
+        % M = M_macrocell + M_smallcell;
+        M;
+
+        %% MDCs    
+        % https://www.ec2instances.info/?selected=a1.medium,c4.8xlarge
+        % Number of machine classes
+        I = 3;
+        % Number of MDC's
+        % S_macrocell = n_sites * mc_antennas_per_area % one MDC per MC antenna
+        S_macrocell;
+        % S_smallcell = n_sites * sc_clusters_per_area % one MDC per SC cluster
+        S_smallcell;
+        % S = S_macrocell + S_smallcell
+        S;
+        % https://aws.amazon.com/ec2/instance-types/c5/
+        % https://www.microway.com/knowledge-center-articles/detailed-specifications-of-the-skylake-sp-intel-xeon-processor-scalable-family-cpus/
+        % Processor cycles (for each machine class i - from S U S')
+        P_is = [2 3;
+                3 4;
+                4 5
+                ]; 
+        % Number of cores
+        N_is = [4   8;
+                8   16;
+                16  32
+                ];
+        % Processor efficiency (for each machine class i - from S U S')
+        Ef_is = [2 4;
+                 4 8;
+                 8 16
+                 ];
+        % Machine pricing
+        A_is = [30 20;
+                50 30;
+                90 40
+                ];
+
+        %% Workload
+        % Decoder: linear complexity
+        % Number of decoder recursions
+        decoder_recursions = 7;
+        % Number of decoder instructions
+        decoder_instructions = 200;
+        % Number of operations for each bit
+        % W = decoder_recursions * decoder_instructions;
+        W;
+        %transmited_data_mt = zeros([M T]);
+        transmited_data_mt;
+        % Workload = transmited_data_mt * W
+        
+        %% Vertical allocation constraint variables
+        % Block length (worst case - LTE)
+        block_len = 6114; % bits
+        % Processor cycles (for each machine class i)
+        % Processor efficiency (for each machine class i)
+        % Number of operations 
+        % n_operations = W * block_len;
+        n_operations;
+
+        %% Round-trip Delay (RTD) variables
+        % Speed of light: 299.792 km/s or 299792458 m/s
+        c = 299.792;
+        % Distance between an antenna m and an MDC s (km) -> FIX: use euclidian distance
+        % d_sm = zeros([S M]);
+        d_sm;
+        % 1) Propagation Delay
+        % prop_delay = (3 * d_sm) / c;
+        prop_delay
+        % Block length (block_len)
+        % Fiber-optic flow rate (Gbit/s)
+        fiber_flow = 10;
+        % 2) Transmission Delay
+        % trans_delay = block_len / fiber_flow;
+        trans_delay;
+        % Hops distance (km)
+        d_hops = 50;
+        % 3) Hops Delay
+        % hop_delay = floor(d_sm / (d_hops/10));
+        hop_delay;
+        % Round-trip Delay - i, s, m (machine, mdc, antenna)
+        %RTD_ism = prop_delay + trans_delay + hop_delay;
+        RTD_ism;
+
+        % Time Constraint -- b_ismt (seconds)
+        % RTD < sigma
+        sigma = 0.003;
+
+        %% Original
+        dmacromacro = 1000; % 500
         dmacroue = 35;
         dmacrocluster = 105;
         dsmallue = 5;
@@ -19,9 +124,9 @@ classdef Scenario
         dropradius_ue_cluster = 70;
         
         
-        n_sites = 7;
+        %n_sites = 7;
         n_clusters = 1;         %1, 2, optional 4
-        n_antennas = 10;             %4, 10
+        n_antennas = 4;             %4, 10
         n_ues = 60;            %Per macrocell area
         
         uesindoor = 0.2;       %Type ratio
@@ -41,14 +146,52 @@ classdef Scenario
     end
     
     methods
-
+        
         %% Main loop for starting the scenario
         function obj = start(obj)
+            % Number of Antennas 
+            obj.M_macrocell = obj.n_sites * obj.mc_antennas_per_area;
+            obj.M_smallcell = obj.n_sites * obj.sc_clusters_per_area * obj.sc_antennas_per_cluster;
+            obj.M = obj.M_macrocell + obj.M_smallcell;
+
+            % Number of MDC's
+            obj.S_macrocell = obj.n_sites * obj.mc_antennas_per_area % one MDC per MC antenna
+            obj.S_smallcell = obj.n_sites * obj.sc_clusters_per_area % one MDC per SC cluster
+            obj.S = obj.S_macrocell + obj.S_smallcell
+
+            % Number of operations for each bit
+            obj.W = obj.decoder_recursions * obj.decoder_instructions;
+
+            obj.transmited_data_mt = zeros([obj.M obj.T]);
+            % Workload = transmited_data_mt * W
+
+            % Number of operations 
+            obj.n_operations = obj.W * obj.block_len;
+
+            % Distance between an antenna m and an MDC s (km) -> FIX: use euclidian distance
+            obj.d_sm = zeros([obj.S obj.M]);
+            % 1) Propagation Delay
+            obj.prop_delay = (3 * obj.d_sm) / obj.c;
+
+            % 2) Transmission Delay
+            obj.trans_delay = obj.block_len / obj.fiber_flow;
+
+            % 3) Hops Delay
+            obj.hop_delay = floor(obj.d_sm / (obj.d_hops/10));
+            % Round-trip Delay - i, s, m (machine, mdc, antenna)
+            obj.RTD_ism = obj.prop_delay + obj.trans_delay + obj.hop_delay;
+
+            
+            
+            
+            
+            
+            % ORIGINAL
             obj.dmacroradius = obj.dmacromacro * 0.425;
             % Creating macrocell antennas positioning
             % Centralized antenna
             obj.center = Antenna(0, [obj.dmacroradius*obj.n_sites/2, obj.dmacroradius*obj.n_sites/2], obj.index);
-%             obj.center = Antenna(0, [750, 750], obj.index);
+            % obj.center = Antenna(0, [750, 750], obj.index);
             obj.index = obj.index+1;
             [obj.macrocells, obj.index] = obj.hexaCluster(obj.dmacromacro, obj.center, obj.index);
             
@@ -66,13 +209,13 @@ classdef Scenario
             obj.cluster_centers = reshape(obj.cluster_centers, obj.n_sites, obj.n_clusters);
             
             %Spawning UEs 
-            for i = 1:length(obj.macrocells)
-                ues_aux = obj.spawnUEs(obj.macrocells(i), obj.clusters(i,:), obj.cluster_centers(i,:));
-%                 plot([ues_aux.x], [ues_aux.y], '.', 'MarkerSize',4);
-                obj.ues = [obj.ues ues_aux];
-            end
-            obj.cluster_ues = reshape(obj.ues, obj.n_sites, obj.n_ues);
-%             hold off;
+%             for i = 1:length(obj.macrocells)
+%                 ues_aux = obj.spawnUEs(obj.macrocells(i), obj.clusters(i,:), obj.cluster_centers(i,:));
+% %                 plot([ues_aux.x], [ues_aux.y], '.', 'MarkerSize',4);
+%                 obj.ues = [obj.ues ues_aux];
+%             end
+%             obj.cluster_ues = reshape(obj.ues, obj.n_sites, obj.n_ues);
+% %             hold off;
         end
         
         %% Creates a hexagon map structure for an antenna
@@ -119,7 +262,7 @@ classdef Scenario
                 index = index+1;
             end
         end
-        %% Randon uniform distribution of ues in clusters 
+        %% Random uniform distribution of ues in clusters 
         function ues = spawnUEs(obj, macrocell, clusters, clustercenter)
             ues = [];
             reset = 0;
@@ -163,8 +306,41 @@ classdef Scenario
                 not_done = euclidian_LTE(d, center) < min_distance;
             end
         end
+        %% Creating Transmited data matrix (from normal distribution) - Gamma_mt (antenna saturation)
+        function transmited_data_mt = antennaSaturationNorm(obj)
+            transmited_data_mt = zeros([obj.M obj.T]);
+            for i = 1:M
+                %Macrocells: Residential area 
+                if i <= 3
+                    time_var = i;
+                    probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
+                    time=[6+time_var:24 1:5+time_var];
+                    transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
+                %Macrocells: Urban area 
+                elseif i <= 7
+                    time_var = 7 - i;
+                    probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
+                    time=[19+time_var:24 1:18+time_var];
+                    transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
+                %Smallcells: Residential area 
+                elseif i <= 19
+                    time_var = 10 - i;
+                    probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
+                    time=[6:24 1:5];
+                    transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
+                %Smallcells: Urban area 
+                else
+                    time_var = 28 - i;
+                    probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
+                    time=[6:24 1:5];
+                    transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
+                end
+            end
+
+            bar(1:24, transmited_data_mt(1,:));
+        end
+        %% Calculating power from 3GPP TS 36.213 p13 
         function p = signalMatrix(prbs)
-            %% Calculating power from 3GPP TS 36.213 p13 
             %PCmax_i = MIN {PEMAX ? DTC, PPowerClass ? MAX(MPR + A-MPR, P-MPR) ? DTC}
             %Pemax to be used in the target cell. If absent the UE applies the
             %maximum power according to the UE capability 3GPP TS 36.331 version 10.7.0 Release 10
@@ -218,7 +394,7 @@ classdef Scenario
             end
             plot([obj.smallcells.x], [obj.smallcells.y], 'o', 'MarkerSize',4);
             plot([obj.cluster_centers.x], [obj.cluster_centers.y],'r*');
-            plot([obj.ues.x], [obj.ues.y], '.', 'MarkerSize',8);
+%             plot([obj.ues.x], [obj.ues.y], '.', 'MarkerSize',8);
             hold off;  
             if obj.n_sites > 1
                 ylim([0 obj.dmacromacro*floor(obj.n_sites/2) ])

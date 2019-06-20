@@ -16,7 +16,7 @@ display(scenario);
 %% Basic problem inputs
 
 % Number of areas (hexagons) -- Scenario length
-n_areas = 7;
+n_sites = 7;
 
 % Time slots
 T = 24; % 
@@ -31,8 +31,9 @@ sc_clusters_per_area = 1;
 sc_antennas_per_cluster = 4;
 
 % Number of Antennas 
-S_macrocell = n_areas * mc_antennas_per_area;
-S_smallcell = n_areas * sc_clusters_per_area * sc_antennas_per_cluster;
+M_macrocell = n_sites * mc_antennas_per_area;
+M_smallcell = n_sites * sc_clusters_per_area * sc_antennas_per_cluster;
+M = M_macrocell + M_smallcell;
 
 %% MDCs    
 % https://www.ec2instances.info/?selected=a1.medium,c4.8xlarge
@@ -40,9 +41,9 @@ S_smallcell = n_areas * sc_clusters_per_area * sc_antennas_per_cluster;
 I = 3;
 
 % Number of MDC's
-M_macrocell = n_areas * mc_antennas_per_area % one MDC per MC antenna
-M_smallcell = n_areas * sc_clusters_per_area % one MDC per SC cluster
-M = M_macrocell + M_smallcell
+S_macrocell = n_sites * mc_antennas_per_area % one MDC per MC antenna
+S_smallcell = n_sites * sc_clusters_per_area % one MDC per SC cluster
+S = S_macrocell + S_smallcell
 
 % https://aws.amazon.com/ec2/instance-types/c5/
 % https://www.microway.com/knowledge-center-articles/detailed-specifications-of-the-skylake-sp-intel-xeon-processor-scalable-family-cpus/
@@ -80,7 +81,7 @@ decoder_instructions = 200;
 % Number of operations for each bit
 W = decoder_recursions * decoder_instructions;
 
-% Transmited data (from normal distribution) - Gamma_mt (antenna saturation)
+% Transmited data (from normal distribution) - Gamma_st (antenna saturation)
 close all;  
 transmited_data_mt = zeros([M T]);
 for i = 1:M
@@ -165,15 +166,15 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     % Reshape cannot work with common reasoning since it works with rows first
     % followed by collumns, use this definition
     % Lines first 
-    navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
-    navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
-    navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
+    navA = @(i,s,t) sub2ind([I,M,T],i,m,t);
+    navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*M*T;
+    navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*M*T + I*S*M*T;
     
 %     nav2d = @(m, n) (s-1)*N+m;
 
     %% A and b constraints matrixes
     % One line for each constraint
-    n_constr_lines = I*S*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall s in S U S'
+    n_constr_lines = I*M*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall m in M U M'
     % I*S*M*T columns 
     n_constr_cols = I*S*M*T;
     
@@ -187,10 +188,10 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     ihead = 1;
     
     % First constraint: horizontal alocation
-    for s = 1:S
+    for m = 1:M
         for t = 1:T
             for i = 1:I
-                for m = 1:M
+                for s = 1:S
                     A(ihead, navB(i,s,m,t)) = transmited_data_mt(m,t) * W;
                 end
                 A(ihead, navA(i,s,t)) = -(P_is(i) * N_is(i,s) * Ef_is(i,s));
@@ -201,11 +202,11 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     end
     
     % Second constraint: vertical alocation
-    for s = 1:S
+    for m = 1:M
         for t = 1:T
-            for m = 1:M
+            for s = 1:S
                 for i = 1:I
-                    t_proc = (W * block_len) / (P_is(i,s) * Ef_is(i,s)) 
+                    t_proc = (W * block_len) / (P_im(i,m) * Ef_im(i,m)) 
                     %(ihead, navB(i,s,m,t) = t_proc + (RTD(i,s,m) * 2);
                     b(ihead) = sigma;
                     ihead = ihead + 1;
