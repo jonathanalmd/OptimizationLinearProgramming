@@ -1,6 +1,6 @@
 %% Description
 % @file 	opmit_1_2.m
-% @author	Marcelo A. Marotta, PhD (MSc Adivisor) & Jonathan Mendes de Almeida (MSc Student)
+% @author	Marcelo A. Marotta, PhD (MSc Co-Adivisor) & Jonathan Mendes de Almeida (MSc Student)
 % @email	marcelo dot marotta at unb dot br / jonathanalmd at gmail dot com / jonathan at aluno dot unb dot br
 % @page     jonathanalmd.github.io
 % @date     05/20/2019 
