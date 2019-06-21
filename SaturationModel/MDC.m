@@ -28,8 +28,7 @@ classdef MDC
                 obj.mdc_vms = [obj.mdc_vms VM(2, 3*10^9, 8, 4, 50)];
                 obj.mdc_vms = [obj.mdc_vms VM(3, 4*10^9, 16, 8, 90)];
             end
-        end
-        
+        end        
     end
     
 end

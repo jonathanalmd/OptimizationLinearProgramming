@@ -46,29 +46,29 @@ classdef Scenario
         mdcs;
 %         % MDCs positions
 %         S_xy;
-%         
-%         % https://aws.amazon.com/ec2/instance-types/c5/
-%         % https://www.microway.com/knowledge-center-articles/detailed-specifications-of-the-skylake-sp-intel-xeon-processor-scalable-family-cpus/
-%         % Processor cycles (for each machine class i - from S U S')
-%         P_is = [2 3;
-%                 3 4;
-%                 4 5
-%                 ]; 
-%         % Number of cores
-%         N_is = [4   8;
-%                 8   16;
-%                 16  32
-%                 ];
-%         % Processor efficiency (for each machine class i - from S U S')
-%         Ef_is = [2 4;
-%                  4 8;
-%                  8 16
-%                  ];
-%         % Machine pricing
-%         A_is = [30 20;
-%                 50 30;
-%                 90 40
-%                 ];
+        
+        % https://aws.amazon.com/ec2/instance-types/c5/
+        % https://www.microway.com/knowledge-center-articles/detailed-specifications-of-the-skylake-sp-intel-xeon-processor-scalable-family-cpus/
+        % Processor cycles (for each machine class i - from S U S')
+        P_is = [2 3;
+                3 4;
+                4 5
+                ]; 
+        % Number of cores
+        N_is = [4   8;
+                8   16;
+                16  32
+                ];
+        % Processor efficiency (for each machine class i - from S U S')
+        Ef_is = [2 4;
+                 4 8;
+                 8 16
+                 ];
+        % Machine pricing
+        A_is = [30 20;
+                50 30;
+                90 40
+                ];
 
         %% Workload
         % Decoder: linear complexity

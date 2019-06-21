@@ -9,78 +9,11 @@
 % @brief	MatLab code for the saturation problem
 
 
-%% Scenario Parameters
+%% Creating Scenario
 scenario = Scenario;
 scenario = scenario.start();
 display(scenario);
 
-%% Basic problem inputs
-
-% Number of areas (hexagons) -- Scenario length
-n_sites = 7;
-
-% Time slots
-T = 24; % 
-
-%% Antennas
-% Number of MacroCells antennas per covered area
-mc_antennas_per_area = 1;
-
-% Number of SmallCells clusters per covered area
-sc_clusters_per_area = 1;
-% Number of SmallCells antennas per cluster
-sc_antennas_per_cluster = 4;
-
-% Number of Antennas 
-M_macrocell = n_sites * mc_antennas_per_area;
-M_smallcell = n_sites * sc_clusters_per_area * sc_antennas_per_cluster;
-M = M_macrocell + M_smallcell;
-
-%% MDCs    
-% https://www.ec2instances.info/?selected=a1.medium,c4.8xlarge
-% Number of machine classes
-I = 3;
-
-% Number of MDC's
-S_macrocell = n_sites * mc_antennas_per_area % one MDC per MC antenna
-S_smallcell = n_sites * sc_clusters_per_area % one MDC per SC cluster
-S = S_macrocell + S_smallcell
-
-% https://aws.amazon.com/ec2/instance-types/c5/
-% https://www.microway.com/knowledge-center-articles/detailed-specifications-of-the-skylake-sp-intel-xeon-processor-scalable-family-cpus/
-% Processor cycles (for each machine class i - from S U S')
-P_is = [2 3;
-        3 4;
-        4 5
-        ]; 
-
-% Number of cores
-N_is = [4   8;
-        8   16;
-        16  32
-        ];
-
-% Processor efficiency (for each machine class i - from S U S')
-Ef_is = [2 4;
-         4 8;
-         8 16
-         ];
-
-% Machine pricing
-A_is = [30 20;
-        50 30;
-        90 40
-        ];
-
-
-%% Workload
-% Decoder: linear complexity
-% Number of decoder recursions
-decoder_recursions = 7;
-% Number of decoder instructions
-decoder_instructions = 200;
-% Number of operations for each bit
-W = decoder_recursions * decoder_instructions;
 
 % Transmited data (from normal distribution) - Gamma_st (antenna saturation)
 close all;  
@@ -116,45 +49,6 @@ end
 bar(1:24, transmited_data_mt(1,:));
 
 
-% Workload: W * Gamma
-
-%% Vertical allocation constraint variables
-% Block length (worst case - LTE)
-block_len = 6114; % bits
-% Processor cycles (for each machine class i)
-% Processor efficiency (for each machine class i)
-% Number of operations 
-n_operations = W * block_len;
-
-
-%% Round-trip Delay (RTD) variables
-% Speed of light: 299.792 km/s or 299792458 m/s
-c = 299.792;
-% Distance between an antenna m and an MDC s (km) -> FIX: use euclidian distance
-d_sm = 1;
-% 1) Propagation Delay
-prop_delay = (3 * d_sm) / c;
-
-% Block length (block_len)
-% Fiber-optic flow rate (Gbit/s)
-fiber_flow = 10;
-% 2) Transmission Delay
-trans_delay = block_len / fiber_flow;
-
-% Hops distance (km)
-d_hops = 50;
-% 3) Hops Delay
-hop_delay = floor(d_sm / (d_hops/10));
-
-% Round-trip Delay - i, s, m (machine, mdc, antenna)
-RTD = prop_delay + trans_delay + hop_delay;
-
-% Time Constraint -- b_ismt (seconds)
-% RTD < sigma
-sigma = 0.003;
-
-
-
 
 %% Saturation Problem
 function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
@@ -167,15 +61,15 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     % Reshape cannot work with common reasoning since it works with rows first
     % followed by collumns, use this definition
     % Lines first 
-    navA = @(i,s,t) sub2ind([I,M,T],i,m,t);
-    navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*M*T;
-    navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*M*T + I*S*M*T;
+    navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
+    navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
+    navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
     
 %     nav2d = @(m, n) (s-1)*N+m;
 
     %% A and b constraints matrixes
     % One line for each constraint
-    n_constr_lines = I*M*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall m in M U M'
+    n_constr_lines = I*S*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall m in M U M'
     % I*S*M*T columns 
     n_constr_cols = I*S*M*T;
     
@@ -189,13 +83,13 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     ihead = 1;
     
     % First constraint: horizontal alocation
-    for m = 1:M
+    for s = 1:s
         for t = 1:T
             for i = 1:I
-                for s = 1:S
+                for m = 1:M
                     A(ihead, navB(i,s,m,t)) = transmited_data_mt(m,t) * W;
                 end
-                A(ihead, navA(i,s,t)) = -(P_is(i) * N_is(i,s) * Ef_is(i,s));
+                A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
                 b(ihead) = 0;
                 ihead = ihead + 1;
             end
@@ -203,11 +97,11 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     end
     
     % Second constraint: vertical alocation
-    for m = 1:M
+    for s = 1:S
         for t = 1:T
-            for s = 1:S
+            for m = 1:M
                 for i = 1:I
-                    t_proc = (W * block_len) / (P_im(i,m) * Ef_im(i,m)) 
+                    t_proc = (W * block_len) / (P_is(i,s) * Ef_is(i,s)) 
                     %(ihead, navB(i,s,m,t) = t_proc + (RTD(i,s,m) * 2);
                     b(ihead) = sigma;
                     ihead = ihead + 1;
