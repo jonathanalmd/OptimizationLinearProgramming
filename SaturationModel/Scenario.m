@@ -129,15 +129,7 @@ classdef Scenario
         
         dropradius_mc = 250;
         dropradius_sc = 500;
-        dropradius_sc_cluster = 50;
-        % dropradius_ue_cluster = 70;
-             
-        %n_sites = 7;
-        %n_clusters = 1;         %1, 2, optional 4
-        % n_antennass = 10;             %4, 10
-        % n_ues = 60;            %Per macrocell area 
-        % uesindoor = 0.2;       %Type ratio
-        % uessmallcell = 2/3;    %Dropping ratio
+        dropradius_sc_cluster = 50; 
            
         index = 1;
         macrocells;
@@ -145,10 +137,7 @@ classdef Scenario
         clusters;
         cluster_centers;
         center;
-        % ues;
-        % cluster_ues;
         dmacroradius;
-        % R;
     end
     %% Methods
     methods
@@ -166,8 +155,6 @@ classdef Scenario
 
             
  
-            
-            % ORIGINAL
             obj.dmacroradius = obj.dmacromacro * 0.425;
             % Creating macrocell antennas positioning
             % Centralized antenna
@@ -194,12 +181,8 @@ classdef Scenario
             % All MDCs
             obj.mdcs = [obj.mc_mdcs obj.sc_mdcs];
             
-            
-            
             obj.clusters = reshape(obj.smallcells, obj.n_sites, obj.mc_clusters_per_site, obj.sc_antennas_per_cluster);
             obj.cluster_centers = reshape(obj.cluster_centers, obj.n_sites, obj.mc_clusters_per_site);
-            
-            
             
             % Number of operations for each bit
             obj.W = obj.decoder_recursions * obj.decoder_instructions;
@@ -223,14 +206,6 @@ classdef Scenario
             % Round-trip Delay - i, s, m (machine, mdc, antenna)
             obj.RTD_ism = obj.prop_delay + obj.trans_delay + obj.hop_delay;
             
-            %             % Spawning UEs 
-            %             for i = 1:length(obj.macrocells)
-            %                 ues_aux = obj.spawnUEs(obj.macrocells(i), obj.clusters(i,:), obj.cluster_centers(i,:));
-            %                 % plot([ues_aux.x], [ues_aux.y], '.', 'MarkerSize',4);
-            %                 obj.ues = [obj.ues ues_aux];
-            %             end
-            %             obj.cluster_ues = reshape(obj.ues, obj.n_sites, obj.n_ues);
-            %             % hold off;
         end
         
         %% Creates a hexagon map structure for an antenna
@@ -295,7 +270,11 @@ classdef Scenario
         %% Creating Transmited data matrix (from normal distribution) - Gamma_mt (antenna saturation)
         function transmited_data_mt = antennaSaturationNorm(obj)
             transmited_data_mt = zeros([obj.M obj.T]);
+            time_var = 0;
             for i = 1:obj.M
+                if time_var > 4
+                    time_var = 0;
+                end
                 %Macrocells: Residential area 
                 if i <= 3
                     time_var = i;
@@ -322,7 +301,7 @@ classdef Scenario
                     transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
                 end
             end
-
+            time_var = time_var + 1;
             bar(1:24, transmited_data_mt(1,:));
         end
         

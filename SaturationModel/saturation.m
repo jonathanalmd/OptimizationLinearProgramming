@@ -15,41 +15,6 @@ scenario = scenario.start();
 display(scenario);
 
 
-% Transmited data (from normal distribution) - Gamma_st (antenna saturation)
-close all;  
-transmited_data_mt = zeros([M T]);
-for i = 1:M
-    %Macrocells: Residential area 
-    if i <= 3
-        time_var = i;
-        probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
-        time=[6+time_var:24 1:5+time_var];
-        transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
-    %Macrocells: Urban area 
-    elseif i <= 7
-        time_var = 7 - i;
-        probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
-        time=[19+time_var:24 1:18+time_var];
-        transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
-    %Smallcells: Residential area 
-    elseif i <= 19
-        time_var = 10 - i;
-        probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
-        time=[6:24 1:5];
-        transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
-    %Smallcells: Urban area 
-    else
-        time_var = 28 - i;
-        probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
-        time=[19:24 1:18];
-        transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
-    end
-end
-
-bar(1:24, transmited_data_mt(1,:));
-
-
-
 %% Saturation Problem
 function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     %% Description
