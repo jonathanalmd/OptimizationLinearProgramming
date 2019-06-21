@@ -44,31 +44,6 @@ classdef Scenario
         sc_mdcs;
         % List of all MDCs
         mdcs;
-%         % MDCs positions
-%         S_xy;
-        
-        % https://aws.amazon.com/ec2/instance-types/c5/
-        % https://www.microway.com/knowledge-center-articles/detailed-specifications-of-the-skylake-sp-intel-xeon-processor-scalable-family-cpus/
-        % Processor cycles (for each machine class i - from S U S')
-        P_is = [2 3;
-                3 4;
-                4 5
-                ]; 
-        % Number of cores
-        N_is = [4   8;
-                8   16;
-                16  32
-                ];
-        % Processor efficiency (for each machine class i - from S U S')
-        Ef_is = [2 4;
-                 4 8;
-                 8 16
-                 ];
-        % Machine pricing
-        A_is = [30 20;
-                50 30;
-                90 40
-                ];
 
         %% Workload
         % Decoder: linear complexity
@@ -131,14 +106,17 @@ classdef Scenario
         dropradius_sc = 500;
         dropradius_sc_cluster = 50; 
            
-        index = 1;
         macrocells;
         smallcells;
         clusters;
         cluster_centers;
         center;
         dmacroradius;
+        
+        index = 1;
+
     end
+    
     %% Methods
     methods
         %% Main loop for starting the scenario
@@ -294,7 +272,7 @@ classdef Scenario
                     time=[6:24 1:5];
                     transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
                 %Smallcells: Urban area 
-                else
+                else % <= 35
                     time_var = 28 - i;
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
                     time=[6:24 1:5];
