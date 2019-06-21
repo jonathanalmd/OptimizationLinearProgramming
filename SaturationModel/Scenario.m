@@ -255,31 +255,27 @@ classdef Scenario
                 end
                 %Macrocells: Residential area 
                 if i <= 3
-                    time_var = i;
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
                     time=[6+time_var:24 1:5+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
                 %Macrocells: Urban area 
                 elseif i <= 7
-                    time_var = 7 - i;
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
                     time=[19+time_var:24 1:18+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
                 %Smallcells: Residential area 
                 elseif i <= 19
-                    time_var = 10 - i;
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
-                    time=[6:24 1:5];
+                    time=[6+time_var:24 1:5+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
                 %Smallcells: Urban area 
                 else % <= 35
-                    time_var = 28 - i;
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
-                    time=[6:24 1:5];
+                    time=[19+time_var:24 1:18+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
                 end
+                time_var = time_var + 1;
             end
-            time_var = time_var + 1;
             bar(1:24, transmited_data_mt(1,:));
         end
         
