@@ -88,7 +88,8 @@ classdef Scenario
         % hop_delay = floor(d_sm / (d_hops/10));
         hop_delay;
         % Round-trip Delay - i, s, m (machine, mdc, antenna)
-        %RTD_ism = prop_delay + trans_delay + hop_delay;
+        %RTD_ism = prop_delay + trans_delay + hop_delay; -> considerar o de
+        %processamento
         RTD_ism;
 
         % Time Constraint -- b_ismt (seconds)
@@ -288,6 +289,9 @@ classdef Scenario
         end
         
         %% Creating Transmited data matrix (from normal distribution) - Gamma_mt (antenna saturation)
+        % colocar dentro da antena
+        % colocar como parâmetro os valores da normal
+        % adicionar possibilidade de ser aleatório
         function transmited_data_mt = antennaSaturationNorm(obj)
             transmited_data_mt = zeros([obj.M obj.T]);
             time_var = 0;
