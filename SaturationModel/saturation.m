@@ -41,7 +41,7 @@ for i = 1:M
     else
         time_var = 28 - i;
         probabilities = normpdf(-1.96:1.98/(T/2):1.96, 0, 1)*2;
-        time=[6:24 1:5];
+        time=[19:24 1:18];
         transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
     end
 end
@@ -89,8 +89,15 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
                 for m = 1:M
                     A(ihead, navB(i,s,m,t)) = transmited_data_mt(m,t) * W;
                 end
-                A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
+                % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
+                % scenario.mdcs(s).vms(i)
+                P_is = scenario.mdcs(s).vms(i).cycles;
+                N_is = scenario.mdcs(s).vms(i).n_cores;
+                Ef_is = scenario.mdcs(s).vms(i).efficiency;
+                A(ihead, navA(i,s,t)) = -(P_is * N_is * Ef_is);
+                
                 b(ihead) = 0;
+                
                 ihead = ihead + 1;
             end
         end
@@ -101,9 +108,13 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
         for t = 1:T
             for m = 1:M
                 for i = 1:I
-                    t_proc = (W * block_len) / (P_is(i,s) * Ef_is(i,s)) 
+                    P_is = scenario.mdcs(s).vms(i).cycles;
+                    Ef_is = scenario.mdcs(s).vms(i).efficiency;
+                    t_proc = (W * block_len) / (P_is * Ef_is); 
                     %(ihead, navB(i,s,m,t) = t_proc + (RTD(i,s,m) * 2);
+                    
                     b(ihead) = sigma;
+                    
                     ihead = ihead + 1;
                 end
             end
@@ -122,7 +133,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     
     
     %% Get optimal solution
-    % [vec, fval, answer, resume] = intlinprog(f,1:N*N, [], [], Aeq,beq,l_bound,u_bound);
+    % [vec, fval, answer, resume] = intlinprog(f,1:N*N, A, b, [], [],l_bound,u_bound);
 
     
     
