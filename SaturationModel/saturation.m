@@ -1,5 +1,6 @@
 %% Description
-% @file 	saturation.m
+% @file 	saturation.m 
+%           Dependencies: Scenario.m, Antenna.m, MDC.m, VM.m, euclidian_sm_LTE.m
 % @author	Jonathan Mendes de Almeida (MSc Student) & Marcelo A. Marotta, PhD (MSc Co-Adivisor)
 % @email	jonathanalmd at gmail dot com / jonathan at aluno dot unb dot br / marcelo dot marotta at unb dot br 
 % @page     jonathanalmd.github.io
