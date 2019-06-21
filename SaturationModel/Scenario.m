@@ -78,7 +78,7 @@ classdef Scenario
         prop_delay
         % Block length (block_len)
         % Fiber-optic flow rate (Gbit/s)
-        fiber_flow = 10;
+        fiber_flow = 10*10^9;
         % 2) Transmission Delay
         % trans_delay = block_len / fiber_flow;
         trans_delay;
@@ -97,11 +97,8 @@ classdef Scenario
 
         %% ORIGINAL
         dmacromacro = 1000; % 500
-        dmacroue = 35;
         dmacrocluster = 105;
-        dsmallue = 5;
         dsmallsmall = 20;
-        
         dropradius_mc = 250;
         dropradius_sc = 500;
         dropradius_sc_cluster = 50; 
@@ -119,6 +116,51 @@ classdef Scenario
     
     %% Methods
     methods
+%         function obj = Scenario(n_sites, T, mc_antennas_per_site, mc_clusters_per_site, ...
+%                                 sc_antennas_per_cluster, decoder_recursions, decoder_instructions, ...
+%                                 block_len, c, fiber_flow, d_hops, sigma, dmacromacro, dmacrocluster, ...
+%                                 dsmallsmall, dropradius_mc, dropradius_sc, dropradius_sc_cluster ...
+%                                )
+%             % Number of sites (hexagons) -- Scenario length
+%             obj.n_sites = n_sites;
+%             % Time slots
+%             obj.T = T; 
+%             % Antennas
+%             % Number of MacroCells antennas per covered area
+%             obj.mc_antennas_per_site = mc_antennas_per_site;
+%             % Number of SmallCells clusters per covered area
+%             obj.mc_clusters_per_site = mc_clusters_per_site;
+%             % Number of SmallCells antennas per cluster
+%             obj.sc_antennas_per_cluster = sc_antennas_per_cluster;
+% 
+%             % Workload
+%             % Decoder: linear complexity
+%             % Number of decoder recursions
+%             obj.decoder_recursions = decoder_recursions;
+%             % Number of decoder instructions
+%             obj.decoder_instructions = decoder_instructions;
+% 
+%             % Vertical allocation constraint variables
+%             % Block length (worst case - LTE)
+%             obj.block_len = block_len; % bits
+% 
+%             % Round-trip Delay (RTD) variables
+%             % Speed of light: 299.792 km/s or 299792458 m/s
+%             obj.c = c;
+%             obj.fiber_flow = fiber_flow;
+%             % Hops distance (km)
+%             obj.d_hops = d_hops;
+%             % RTD < sigma
+%             obj.sigma = sigma;
+% 
+%             obj.dmacromacro = dmacromacro;
+%             obj.dmacrocluster = dmacrocluster;
+%             obj.dsmallsmall = dsmallsmall;
+%             obj.dropradius_mc = dropradius_mc;
+%             obj.dropradius_sc = dropradius_sc;
+%             obj.dropradius_sc_cluster = dropradius_sc_cluster; 
+%         end
+%         
         %% Main loop for starting the scenario
         function obj = start(obj)
             % Number of Antennas 
@@ -256,27 +298,27 @@ classdef Scenario
                 %Macrocells: Residential area 
                 if i <= 3
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
-                    time=[6+time_var:24 1:5+time_var];
+                    time=[5+time_var:24 1:4+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
                 %Macrocells: Urban area 
                 elseif i <= 7
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
-                    time=[19+time_var:24 1:18+time_var];
+                    time=[18+time_var:24 1:17+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
                 %Smallcells: Residential area 
                 elseif i <= 19
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
-                    time=[6+time_var:24 1:5+time_var];
+                    time=[5+time_var:24 1:4+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
                 %Smallcells: Urban area 
                 else % <= 35
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
-                    time=[19+time_var:24 1:18+time_var];
+                    time=[18+time_var:24 1:17+time_var];
                     transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
                 end
                 time_var = time_var + 1;
             end
-            bar(1:24, transmited_data_mt(1,:));
+            % bar(1:24, transmited_data_mt(1,:));
         end
         
         

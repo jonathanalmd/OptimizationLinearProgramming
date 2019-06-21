@@ -9,7 +9,50 @@
 % @brief	MatLab code for the saturation problem
 
 
-%% Creating Scenario
+%% Create Scenario
+% % Number of sites (hexagons) -- Scenario length
+% n_sites = 7;
+% % Time slots
+% T = 24; % 
+% % Antennas
+% % Number of MacroCells antennas per covered area
+% mc_antennas_per_site = 1;
+% % Number of SmallCells clusters per covered area
+% mc_clusters_per_site = 1;
+% % Number of SmallCells antennas per cluster
+% sc_antennas_per_cluster = 4;
+% 
+% % Workload
+% % Decoder: linear complexity
+% % Number of decoder recursions
+% decoder_recursions = 7;
+% % Number of decoder instructions
+% decoder_instructions = 200;
+% 
+% % Vertical allocation constraint variables
+% % Block length (worst case - LTE)
+% block_len = 6114; % bits
+% 
+% % Round-trip Delay (RTD) variables
+% % Speed of light: 299.792 km/s or 299792458 m/s
+% c = 299.792;
+% fiber_flow = 10;
+% % Hops distance (km)
+% d_hops = 50;
+% % RTD < sigma
+% sigma = 0.003;
+% 
+% dmacromacro = 1000; % 500
+% dmacrocluster = 105;
+% dsmallsmall = 20;
+% dropradius_mc = 250;
+% dropradius_sc = 500;
+% dropradius_sc_cluster = 50; 
+% scenario = Scenario(n_sites, T, mc_antennas_per_site, mc_clusters_per_site, ...
+%                     sc_antennas_per_cluster, decoder_recursions, decoder_instructions, ...
+%                     block_len, c, fiber_flow, d_hops, sigma, dmacromacro, dmacrocluster, ...
+%                     dsmallsmall, dropradius_mc, dropradius_sc, dropradius_sc_cluster ...
+%                     );
 scenario = Scenario;
 scenario = scenario.start();
 display(scenario);
