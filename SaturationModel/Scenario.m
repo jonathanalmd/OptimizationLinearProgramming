@@ -164,27 +164,7 @@ classdef Scenario
             obj.S_smallcell = obj.n_sites * obj.mc_clusters_per_site % one MDC per SC cluster
             obj.S = obj.S_macrocell + obj.S_smallcell
 
-            % Number of operations for each bit
-            obj.W = obj.decoder_recursions * obj.decoder_instructions;
-
-            obj.transmited_data_mt = obj.antennaSaturationNorm();
-            % Workload = transmited_data_mt * W
-
-            % Number of operations 
-            obj.n_operations = obj.W * obj.block_len;
-
-            % Distance between an antenna m and an MDC s (km) -> FIX: use euclidian distance
-            obj.d_sm = zeros([obj.S obj.M]);
-            % 1) Propagation Delay
-            obj.prop_delay = (3 * obj.d_sm) / obj.c;
-
-            % 2) Transmission Delay
-            obj.trans_delay = obj.block_len / obj.fiber_flow;
-
-            % 3) Hops Delay
-            obj.hop_delay = floor(obj.d_sm / (obj.d_hops/10));
-            % Round-trip Delay - i, s, m (machine, mdc, antenna)
-            obj.RTD_ism = obj.prop_delay + obj.trans_delay + obj.hop_delay;
+            
  
             
             % ORIGINAL
@@ -218,6 +198,30 @@ classdef Scenario
             
             obj.clusters = reshape(obj.smallcells, obj.n_sites, obj.mc_clusters_per_site, obj.sc_antennas_per_cluster);
             obj.cluster_centers = reshape(obj.cluster_centers, obj.n_sites, obj.mc_clusters_per_site);
+            
+            
+            
+            % Number of operations for each bit
+            obj.W = obj.decoder_recursions * obj.decoder_instructions;
+
+            obj.transmited_data_mt = obj.antennaSaturationNorm();
+            % Workload = transmited_data_mt * W
+
+            % Number of operations 
+            obj.n_operations = obj.W * obj.block_len;
+
+            % Distance between an antenna m and an MDC s (km) 
+            obj.d_sm = obj.distances_sm();
+            % 1) Propagation Delay
+            obj.prop_delay = (3 * obj.d_sm) / obj.c;
+
+            % 2) Transmission Delay
+            obj.trans_delay = obj.block_len / obj.fiber_flow;
+
+            % 3) Hops Delay
+            obj.hop_delay = floor(obj.d_sm / (obj.d_hops));
+            % Round-trip Delay - i, s, m (machine, mdc, antenna)
+            obj.RTD_ism = obj.prop_delay + obj.trans_delay + obj.hop_delay;
             
             %             % Spawning UEs 
             %             for i = 1:length(obj.macrocells)
@@ -325,7 +329,7 @@ classdef Scenario
         
         %%  Return a matrix of distances - Antennas x MDCs (smallcells = cluster center / macrocells = same place)
         function d_sm = distances_sm(obj)
-            d_sm =  euclidian_sm_LTE(obj.ues, [obj.macrocells obj.smallcells]);
+            d_sm =  euclidian_sm_LTE(obj.mdcs, [obj.macrocells obj.smallcells]);
         end
         
         %% Plot the scenario considering the antennas and UEs placement

@@ -1,7 +1,7 @@
 %% Description
 % @file 	saturation.m
-% @author	Marcelo A. Marotta, PhD (MSc Co-Adivisor) & Jonathan Mendes de Almeida (MSc Student)
-% @email	marcelo dot marotta at unb dot br / jonathanalmd at gmail dot com / jonathan at aluno dot unb dot br
+% @author	Jonathan Mendes de Almeida (MSc Student) & Marcelo A. Marotta, PhD (MSc Co-Adivisor)
+% @email	jonathanalmd at gmail dot com / jonathan at aluno dot unb dot br / marcelo dot marotta at unb dot br 
 % @page     jonathanalmd.github.io
 % @date     06/10/2019 
 % @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
