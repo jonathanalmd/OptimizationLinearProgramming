@@ -207,8 +207,12 @@ classdef Scenario
             
             % Number of operations for each bit
             obj.W = obj.decoder_recursions * obj.decoder_instructions;
-
-            obj.transmited_data_mt = obj.antennaSaturationNorm();
+            
+            mi1 = 460;
+            sigma1 = 350;
+            mi2 = 180;
+            sigma2 = 130;
+            obj.transmited_data_mt = obj.antennaSaturationNorm(mi1,sigma1,mi2,sigma2);
             % Workload = transmited_data_mt * W
 
             % Number of operations 
@@ -293,7 +297,7 @@ classdef Scenario
         % colocar dentro da antena
         % colocar como parâmetro os valores da normal
         % adicionar possibilidade de ser aleatório
-        function transmited_data_mt = antennaSaturationNorm(obj)
+        function transmited_data_mt = antennaSaturationNorm(obj, mi1, sigma1, mi2, sigma2)
             transmited_data_mt = zeros([obj.M obj.T]);
             time_var = 0;
             for i = 1:obj.M
@@ -304,22 +308,22 @@ classdef Scenario
                 if i <= 3
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
                     time=[5+time_var:24 1:4+time_var];
-                    transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
+                    transmited_data_mt(i,time) = norminv(probabilities,  mi1, sigma1);
                 %Macrocells: Urban area 
                 elseif i <= 7
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
                     time=[18+time_var:24 1:17+time_var];
-                    transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
+                    transmited_data_mt(i,time) = norminv(probabilities,  mi2, sigma2);
                 %Smallcells: Residential area 
                 elseif i <= 19
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
                     time=[5+time_var:24 1:4+time_var];
-                    transmited_data_mt(i,time) = norminv(probabilities,  460, 350);
+                    transmited_data_mt(i,time) = norminv(probabilities,  mi1, sigma1);
                 %Smallcells: Urban area 
                 else % <= 35
                     probabilities = normpdf(-1.96:1.98/(obj.T/2):1.96, 0, 1)*2;
                     time=[18+time_var:24 1:17+time_var];
-                    transmited_data_mt(i,time) = norminv(probabilities,  180, 130);
+                    transmited_data_mt(i,time) = norminv(probabilities,  mi2, sigma2);
                 end
                 time_var = time_var + 1;
             end
