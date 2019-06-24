@@ -71,13 +71,13 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     % Lines first 
     navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
     navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
-    navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
+    navC = @(s,m,t) sub2ind([S,M,T],s,m,t) + I*S*T + I*S*M*T;
     
 %     nav2d = @(m, n) (s-1)*N+m;
 
     %% A and b constraints matrixes
     % One line for each constraint
-    n_constr_lines = I*S*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall m in M U M'
+    n_constr_lines = I*S*T + I*S*M*T + S*M*T; % forall t in T, forall i in I, forall m in M U M'
     % I*S*M*T columns 
     n_constr_cols = I*S*M*T;
     
@@ -130,6 +130,22 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     end
     
     % Third constraint: migration cost
+    for s = 1:s
+        for t = 1:T
+            for m = 1:M
+                for s1 = 1:S
+                    if s1 ~= s
+                        A(ihead, navB(s,m,t)) = 0 % 0 or 1 (?) -> b_sm (t-1)
+                    end
+                end
+                
+                b(ihead) = 1;
+                
+                ihead = ihead + 1;
+            end
+        end
+    end
+    
     
     
     %% Map the objective function

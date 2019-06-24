@@ -224,8 +224,9 @@ classdef Scenario
 
             % 3) Hops Delay
             obj.hop_delay = floor(obj.d_sm / (obj.d_hops));
+            
             % Round-trip Delay - i, s, m (machine, mdc, antenna)
-            obj.RTD_ism = obj.prop_delay + obj.trans_delay + obj.hop_delay;
+            obj.RTD_ism = obj.prop_delay + obj.trans_delay + obj.hop_delay + obj.prop_delay;
             
         end
         
