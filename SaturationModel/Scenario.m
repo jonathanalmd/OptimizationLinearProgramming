@@ -117,51 +117,6 @@ classdef Scenario
     
     %% Methods
     methods
-%         function obj = Scenario(n_sites, T, mc_antennas_per_site, mc_clusters_per_site, ...
-%                                 sc_antennas_per_cluster, decoder_recursions, decoder_instructions, ...
-%                                 block_len, c, fiber_flow, d_hops, sigma, dmacromacro, dmacrocluster, ...
-%                                 dsmallsmall, dropradius_mc, dropradius_sc, dropradius_sc_cluster ...
-%                                )
-%             % Number of sites (hexagons) -- Scenario length
-%             obj.n_sites = n_sites;
-%             % Time slots
-%             obj.T = T; 
-%             % Antennas
-%             % Number of MacroCells antennas per covered area
-%             obj.mc_antennas_per_site = mc_antennas_per_site;
-%             % Number of SmallCells clusters per covered area
-%             obj.mc_clusters_per_site = mc_clusters_per_site;
-%             % Number of SmallCells antennas per cluster
-%             obj.sc_antennas_per_cluster = sc_antennas_per_cluster;
-% 
-%             % Workload
-%             % Decoder: linear complexity
-%             % Number of decoder recursions
-%             obj.decoder_recursions = decoder_recursions;
-%             % Number of decoder instructions
-%             obj.decoder_instructions = decoder_instructions;
-% 
-%             % Vertical allocation constraint variables
-%             % Block length (worst case - LTE)
-%             obj.block_len = block_len; % bits
-% 
-%             % Round-trip Delay (RTD) variables
-%             % Speed of light: 299.792 km/s or 299792458 m/s
-%             obj.c = c;
-%             obj.fiber_flow = fiber_flow;
-%             % Hops distance (km)
-%             obj.d_hops = d_hops;
-%             % RTD < sigma
-%             obj.sigma = sigma;
-% 
-%             obj.dmacromacro = dmacromacro;
-%             obj.dmacrocluster = dmacrocluster;
-%             obj.dsmallsmall = dsmallsmall;
-%             obj.dropradius_mc = dropradius_mc;
-%             obj.dropradius_sc = dropradius_sc;
-%             obj.dropradius_sc_cluster = dropradius_sc_cluster; 
-%         end
-%         
         %% Main loop for starting the scenario
         function obj = start(obj)
             % Number of Antennas 
