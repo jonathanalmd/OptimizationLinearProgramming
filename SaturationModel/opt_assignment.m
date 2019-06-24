@@ -35,7 +35,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     %% A and b constraints matrixes
     % One line for each constraint
     n_constr_lines = I*S*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall m in M U M'
-    % I*S*M*T columns 
+    % I*S*T + I*S*M*T + I*S*M*T columns 
     n_constr_cols = I*S*T + I*S*M*T + I*S*M*T;
     
     % A definition
@@ -86,7 +86,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
                     % Delays
                     delays = prop_delay + trans_delay + hop_delay;
             
-                    A(ihead, navB(i,s,m,t)) = t_proc + (delays * 2); % RTD_ism
+                    A(ihead, navB(i,s,m,t)) = -(t_proc + (delays * 2)); % RTD_ism
                     
                     b(ihead) = scenario.sigma;
                     
@@ -123,9 +123,9 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     for i = 1:I
         for s = 1:s
             for t = 1:T
-                f(navA(i,s,t)) = scenario.mdc(s).vm(i).price;
+                f(navA(i,s,t)) = scenario.mdcs(s).vms(i).price;
                 for m = 1:M
-                    migration_cost = scenario.mdc(s).vm(i).price * scenario.K;
+                    migration_cost = scenario.mdcs(s).vms(i).price * scenario.K;
                     f(navC(i,s,m,t)) = migration_cost;
                 end
             end
@@ -141,10 +141,13 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     %% Get optimal solution
     [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, [], [], l_bound, u_bound);
         
-    %% Transform solution into matrix (NxN)
+    %% a_ist
     output_a = reshape(vec(1 : I*S*T), [I,S,T]);
     
-    %% Get final solution: solution matrix (binary matrix) x weight matrix 
-    output_b = reshape(vec(I*S*T+1 : I*S*T + I*S*M*T), [I,S,M,T]);
+    %% b_ismt
+    output_b = reshape(vec(I*S*T + 1 : I*S*T + I*S*M*T), [I,S,M,T]);
+    
+    %% c_ismt
+    output_c = reshape(vec(I*S*T + I*S*M*T + 1 : I*S*T + I*S*M*T + I*S*M*T), [I,S,M,T]);
     
 end

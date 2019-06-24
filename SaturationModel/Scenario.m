@@ -8,7 +8,7 @@ classdef Scenario
     properties
         %% Basic problem inputs
         % Number of sites (hexagons) -- Scenario length
-        n_sites = 7;
+        n_sites = 5; % 7
         % Time slots
         T = 24; % 
 
@@ -127,16 +127,16 @@ classdef Scenario
             obj.M = obj.M_macrocell + obj.M_smallcell;
 
             % Number of MDC's
-            obj.S_macrocell = obj.n_sites * obj.mc_antennas_per_site % one MDC per MC antenna
-            obj.S_smallcell = obj.n_sites * obj.mc_clusters_per_site % one MDC per SC cluster
-            obj.S = obj.S_macrocell + obj.S_smallcell
+            obj.S_macrocell = obj.n_sites * obj.mc_antennas_per_site; % one MDC per MC antenna
+            obj.S_smallcell = obj.n_sites * obj.mc_clusters_per_site; % one MDC per SC cluster
+            obj.S = obj.S_macrocell + obj.S_smallcell;
 
             
  
             obj.dmacroradius = obj.dmacromacro * 0.425;
             % Creating macrocell antennas positioning
             % Centralized antenna
-            position = [obj.dmacroradius*obj.n_sites/2, obj.dmacroradius*obj.n_sites/2]
+            position = [obj.dmacroradius*obj.n_sites/2, obj.dmacroradius*obj.n_sites/2];
             obj.center = Antenna(0, position, obj.index);
             % MC MDC (center)
             obj.mc_mdcs = MDC(1, [position(1)+50 position(2)+50], obj.index);
