@@ -72,12 +72,12 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
     navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
     navC = @(s,m,t) sub2ind([S,M,T],s,m,t) + I*S*T + I*S*M*T;
-    
+    navD = @(s,m) sub2ind([s,m],s,m) + I*S*T + I*S*M*T + S*M*T;
 %     nav2d = @(m, n) (s-1)*N+m;
 
     %% A and b constraints matrixes
     % One line for each constraint
-    n_constr_lines = I*S*T + I*S*M*T + S*M*T; % forall t in T, forall i in I, forall m in M U M'
+    n_constr_lines = I*S*T + I*S*M*T + S*M*T + S*M; % forall t in T, forall i in I, forall m in M U M'
     % I*S*M*T columns 
     n_constr_cols = I*S*M*T;
     
@@ -162,7 +162,10 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
     % (?)
     
     %% Set upper and lower bounds
-    
+    % Min 0 Max 1
+    u_bound(1:n_constr_lines, 1:1) = 99999999;
+    l_bound = zeros([n_constr_lines, 1]);
+
     
     
     
