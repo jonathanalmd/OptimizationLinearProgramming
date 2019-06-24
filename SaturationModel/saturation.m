@@ -19,18 +19,22 @@ display(scenario);
 function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenario)
     %% Description
     % Function Output: vec, fval, answer, resume, output_a, output_b
-    % Function Parameters: none
+    % Function Parameters: scenario obj
     
     %% Navigation 
     % Anonynous function to navigate vectors
     % Reshape cannot work with common reasoning since it works with rows first
     % followed by collumns, use this definition
     % Lines first 
+    I = scenario.I;
+    S = scenario.S;
+    M = scenario.M;
+    T = scenario.T;
     navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
     navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
     navC = @(s,m,t) sub2ind([S,M,T],s,m,t) + I*S*T + I*S*M*T;
-    navD = @(s,m) sub2ind([s,m],s,m) + I*S*T + I*S*M*T + S*M*T;
-%     nav2d = @(m, n) (s-1)*N+m;
+    navD = @(s,m) sub2ind([S,M],s,m) + I*S*T + I*S*M*T + S*M*T;
+    %navD = @(s, m) (m-1)*M+s; (?)
 
     %% A and b constraints matrixes
     % One line for each constraint
@@ -102,10 +106,10 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             for m = 1:M
                 for s1 = 1:S
                     if s1 ~= s
-                        A(ihead, navB(s,m,t)) = 0 % 0 or 1 (?) -> b_sm (t-1)
+                        A(ihead, navC(s,m,t)) = 0 % 0 or 1 (?) -> b_sm (t-1)
                     end
                 end
-                % c / b_smt (?)
+                % c / b_smt (?) navD?
                 b(ihead) = 1;
                 
                 ihead = ihead + 1;
