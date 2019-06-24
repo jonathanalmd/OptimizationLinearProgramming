@@ -90,7 +90,7 @@ classdef Scenario
         % Round-trip Delay - i, s, m (machine, mdc, antenna)
         %RTD_ism = prop_delay + trans_delay + hop_delay; -> considerar o de
         %processamento
-        RTD_ism;
+        %RTD_ism;
 
         % Time Constraint -- b_ismt (seconds)
         % RTD < sigma
@@ -217,16 +217,16 @@ classdef Scenario
             % Distance between an antenna m and an MDC s (km) 
             obj.d_sm = obj.distances_sm();
             % 1) Propagation Delay
-            obj.prop_delay = (3 * obj.d_sm) / obj.c;
+            %obj.prop_delay = (3 * obj.d_sm) / obj.c;
 
             % 2) Transmission Delay
-            obj.trans_delay = obj.block_len / obj.fiber_flow;
+            %obj.trans_delay = obj.block_len / obj.fiber_flow;
 
             % 3) Hops Delay
-            obj.hop_delay = floor(obj.d_sm / (obj.d_hops));
+            %obj.hop_delay = floor(obj.d_sm / (obj.d_hops));
             
             % Round-trip Delay - i, s, m (machine, mdc, antenna)
-            obj.RTD_ism = obj.prop_delay + obj.trans_delay + obj.hop_delay + obj.prop_delay;
+            %obj.RTD_ism = (obj.trans_delay + obj.hop_delay + obj.prop_delay) * 2;
             
         end
         

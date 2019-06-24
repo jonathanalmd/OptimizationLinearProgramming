@@ -119,7 +119,17 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment( )
                     P_is = scenario.mdcs(s).vms(i).cycles;
                     Ef_is = scenario.mdcs(s).vms(i).efficiency;
                     t_proc = (W * block_len) / (P_is * Ef_is); 
-                    %(ihead, navB(i,s,m,t) = t_proc + (RTD(i,s,m) * 2);
+                    
+                    % 1) Propagation Delay
+                    prop_delay = (3 * scenario.d_sm(s,m)) / obj.c;
+                    % 2) Transmission Delay
+                    trans_delay = scenario.block_len / scenario.fiber_flow;
+                    % 3) Hops Delay
+                    hop_delay = floor(scenario.d_sm(s,m) / (scenario.d_hops));
+                    % Delays
+                    delays = prop_delay + trans_delay + hop_delay;
+            
+                    A(ihead, navB(i,s,m,t) = t_proc + (delays * 2);
                     
                     b(ihead) = sigma;
                     
