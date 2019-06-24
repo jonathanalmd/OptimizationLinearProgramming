@@ -125,8 +125,8 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             for t = 1:T
                 f(navA(i,s,t)) = scenario.mdc(s).vm(i).price;
                 for m = 1:M
-                    K = scenario.mdc(s).vm(i).price * 0.5;
-                    f(navC(i,s,m,t)) = K;
+                    migration_cost = scenario.mdc(s).vm(i).price * scenario.K;
+                    f(navC(i,s,m,t)) = migration_cost;
                 end
             end
         end

@@ -96,7 +96,7 @@ classdef Scenario
         % RTD < sigma
         sigma = 0.003;
     
-        K;
+        K = 0.5;
        
         %% ORIGINAL
         dmacromacro = 1000; % 500
