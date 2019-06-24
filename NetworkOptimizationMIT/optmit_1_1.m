@@ -21,7 +21,6 @@ function [vec, fval, answer, resume, output_a, output_b] = optimal_algorithm1( )
     % followed by collumns, use this definition
     % Lines first 
     nav2d = @(m, n) (n-1)*N+m; % Gamma function (annonymous)
-    nav2d = @(m, n) (n-1)*N+m;
 
     a_ij= [
           99 10  3 99

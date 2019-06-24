@@ -95,7 +95,9 @@ classdef Scenario
         % Time Constraint -- b_ismt (seconds)
         % RTD < sigma
         sigma = 0.003;
-
+    
+        K;
+       
         %% ORIGINAL
         dmacromacro = 1000; % 500
         dmacrocluster = 105;
