@@ -8,7 +8,7 @@ classdef Scenario
     properties
         %% Basic problem inputs
         % Number of sites (hexagons) -- Scenario length
-        n_sites = 5; % 7
+        n_sites = 4; % 7
         % Time slots
         T = 24; % 
 
@@ -285,6 +285,7 @@ classdef Scenario
                 time_var = time_var + 1;
             end
             % bar(1:24, transmited_data_mt(1,:));
+            transmited_data_mt = transmited_data_mt * 10^6;
         end
         
         

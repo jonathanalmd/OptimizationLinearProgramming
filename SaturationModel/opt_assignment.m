@@ -5,7 +5,7 @@
 % @email	jonathanalmd at gmail dot com / jonathan at aluno dot unb dot br / marcelo dot marotta at unb dot br 
 % @page     jonathanalmd.github.io
 % @date     06/10/2019 
-% @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasília (UnB)
+% @info     MSc Research at Computer Networks Lab (COMNET) -- University of Brasï¿½lia (UnB)
 % @brief	MatLab code for the saturation problem
 
 %% Create Scenario
@@ -31,7 +31,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
     navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
     navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
-
+    
     %% A and b constraints matrixes
     % One line for each constraint
     n_constr_lines = I*S*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall m in M U M'
@@ -43,6 +43,11 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     % Right side of the equation 
     b = zeros([n_constr_lines, 1]);
     
+    % Aeq definition
+    Aeq = zeros([M*T,n_constr_cols]);
+    % Right side of the equality
+    beq = zeros([M*T,1]);
+
     %% Map the constraints
     % Head declaration for matrix navigation
     ihead = 1;
@@ -117,6 +122,19 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         end
     end
     
+    % Fourth constraint: association (eq constraint)
+    ihead = 1;
+    for m = 1:M
+        for t = 1:T
+            for i = 1:I
+                for s = 1:S
+                    Aeq(ihead, navB(i,s,m,t)) = 1;
+                    beq(ihead) = 1;
+                end
+            end
+            ihead = ihead + 1;        
+        end
+    end
     
     %% Map the objective function
     f = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
@@ -132,14 +150,14 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         end
     end
                     
-    %% Set upper and lower bounds
+    %% Set variable (a_is(t), b_ism(t), and c_ism(t)) upper and lower bounds 
     % Min 0 Max 1
+    u_bound = ones([I*S*T + I*S*M*T + I*S*M*T, 1]);
     u_bound(1:I*S*T) = 99999999;
-    u_bound(I*S*T+1 : I*S*T + I*S*M*T + I*S*M*T) = 1;
     l_bound = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
     
     %% Get optimal solution
-    [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, [], [], l_bound, u_bound);
+    [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
         
     %% a_ist
     output_a = reshape(vec(1 : I*S*T), [I,S,T]);
