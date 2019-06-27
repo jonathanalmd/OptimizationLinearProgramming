@@ -19,14 +19,14 @@ classdef MDC
             % If MacroCell
             if antenna_type == 1
                 % machineclass, cycles, n_cores, efficiency, price, index
-                obj.vms = [obj.vms VM(1, 3*10^9, 8, 4, 20)];
-                obj.vms = [obj.vms VM(2, 4*10^9, 16, 8, 30)];
-                obj.vms = [obj.vms VM(3, 5*10^9, 32, 16, 40)];
+                obj.vms = [obj.vms VM(1, 3.9*10^9, 16, 16, 0.680, index)];
+                obj.vms = [obj.vms VM(2, 3.9*10^9, 36, 16, 1.530, index)];
+                obj.vms = [obj.vms VM(3, 3.9*10^9, 48, 16, 2.040, index)];
             % Else SmallCell
             else
-                obj.vms = [obj.vms VM(1, 2*10^9, 4, 2, 30)];
-                obj.vms = [obj.vms VM(2, 3*10^9, 8, 4, 50)];
-                obj.vms = [obj.vms VM(3, 4*10^9, 16, 8, 90)];
+                obj.vms = [obj.vms VM(1, 3.6*10^9, 2, 8, 0.085, index)];
+                obj.vms = [obj.vms VM(2, 3.6*10^9, 4, 8, 0.170, index)];
+                obj.vms = [obj.vms VM(3, 3.6*10^9, 8, 8, 0.340, index)];
             end
         end        
     end

@@ -51,7 +51,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     %% Map the constraints
     % Head declaration for matrix navigation
     ihead = 1;
-    
+    display("First constraint");
     % First constraint: horizontal alocation
     for s = 1:S
         for t = 1:T
@@ -72,7 +72,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             end
         end
     end
-    
+    display("Second constraint");
     % Second constraint: vertical alocation
     for s = 1:S
         for t = 1:T
@@ -100,7 +100,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             end
         end
     end
-    
+    display("Third constraint");
     % Third constraint: migration cost
     for s = 1:S
         for t = 2:T
@@ -121,7 +121,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             end
         end
     end
-    
+    display("Fourth constraint");
     % Fourth constraint: vm allocation constraint
     for t = 1:T
         for i = 1:I
@@ -133,7 +133,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         end
         ihead = ihead + 1;
     end
-    
+    display("Fifth constraint");
     % Fifth constraint: association (eq constraint)
     ihead = 1;
     for m = 1:M
@@ -147,7 +147,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             ihead = ihead + 1;        
         end
     end
-    
+    display("Objective function constraint");
     %% Map the objective function
     f = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
     for i = 1:I
@@ -169,6 +169,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     l_bound = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
     
     %% Get optimal solution
+    display("Intlinprog execution");
     [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
         
     %% a_ist

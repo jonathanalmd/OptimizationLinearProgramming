@@ -96,9 +96,8 @@ classdef Scenario
         % RTD < sigma
         sigma = 0.003;
     
-        K = 0.5;
+        K = 0.1;
        
-        %% ORIGINAL
         dmacromacro = 1000; % 500
         dmacrocluster = 105;
         dsmallsmall = 20;
