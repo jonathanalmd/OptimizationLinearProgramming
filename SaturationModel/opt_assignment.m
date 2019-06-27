@@ -127,7 +127,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         for i = 1:I
             for s = 1:S
                 N_is = scenario.mdcs(s).vms(i).n_cores;
-                A(ihead, navB(i,s,t)) = 1;
+                A(ihead, navA(i,s,t)) = 1;
                 b(ihead) = N_is;
             end
         end
