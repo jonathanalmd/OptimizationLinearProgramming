@@ -34,7 +34,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     
     %% A and b constraints matrixes
     % One line for each constraint
-    n_constr_lines = I*S*T + I*S*M*T + I*S*M*T; % forall t in T, forall i in I, forall m in M U M'
+    n_constr_lines = I*S*T + I*S*M*T + I*S*M*T + T; 
     % I*S*T + I*S*M*T + I*S*M*T columns 
     n_constr_cols = I*S*T + I*S*M*T + I*S*M*T;
     
@@ -122,7 +122,19 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         end
     end
     
-    % Fourth constraint: association (eq constraint)
+    % Fourth constraint: vm allocation constraint
+    for t = 1:T
+        for i = 1:I
+            for s = 1:S
+                N_is = scenario.mdcs(s).vms(i).n_cores;
+                A(ihead, navB(i,s,t)) = 1;
+                b(ihead) = N_is;
+            end
+        end
+        ihead = ihead + 1;
+    end
+    
+    % Fifth constraint: association (eq constraint)
     ihead = 1;
     for m = 1:M
         for t = 1:T
