@@ -30,13 +30,18 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     T = scenario.T;
     navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
     navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
-    navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
+    % navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
     
-    %% A and b constraints matrixes
+    %% A/Aeq and b/beq constraints matrixes
     % One line for each constraint
-    n_constr_lines = I*S*T + I*S*M*T + I*S*M*T + T; 
-    % I*S*T + I*S*M*T + I*S*M*T columns 
-    n_constr_cols = I*S*T + I*S*M*T + I*S*M*T;
+    % 1) Horizontal allocation
+    % 2) Vertical allocation)
+    n_constr_lines = I*S*T + I*S*M*T; 
+    
+    % Number of columns is according to the decision variables
+    % a_is(t) [I*S*T] and b_ism(t) [I*S*M*T]
+    n_constr_cols = I*S*T + I*S*M*T;
+    % n_constr_cols = I*S*T + I*S*M*T + I*S*M*T; % a_is(t), b_ism(t), c_ism(t)
     
     % A definition
     A = zeros([n_constr_lines, n_constr_cols]);
@@ -44,20 +49,22 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     b = zeros([n_constr_lines, 1]);
     
     % Aeq definition
+    % 4) Association (MDC-Antenna
     Aeq = zeros([M*T,n_constr_cols]);
     % Right side of the equality
     beq = zeros([M*T,1]);
 
     %% Map the constraints
+    % A/b matrix
     % Head declaration for matrix navigation
     ihead = 1;
-    display("First constraint");
     % First constraint: horizontal alocation
-    for s = 1:S
-        for t = 1:T
-            for i = 1:I
+    for i = 1:I
+        for s = 1:S
+            for t = 1:T
                 for m = 1:M
-                    A(ihead, navB(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W;
+                    % A(ihead, navB(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W;
+                    A(ihead, navB(i,s,m,t)) = (scenario.transmited_data_mt(m,t) * scenario.W) / (scenario.Phi - (3 * scenario.d_sm(s,m)/scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.vf) );
                 end
                 % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
                 % scenario.mdcs(s).vms(i)
@@ -72,12 +79,12 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             end
         end
     end
-    display("Second constraint");
+    
     % Second constraint: vertical alocation
-    for s = 1:S
-        for t = 1:T
+    for i = 1:I
+        for s = 1:S
             for m = 1:M
-                for i = 1:I
+                for t = 1:T
                     P_is = scenario.mdcs(s).vms(i).cycles;
                     Ef_is = scenario.mdcs(s).vms(i).efficiency;
                     t_proc = (scenario.W * scenario.block_len) / (P_is * Ef_is); 
@@ -100,40 +107,41 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             end
         end
     end
-    display("Third constraint");
+    
     % Third constraint: migration cost
-    for s = 1:S
-        for t = 2:T
-            for m = 1:M
-                for i = 1:I
-                    for s1 = 1:S
-                        if s1 ~= s
-                            A(ihead, navB(i,s,m,t-1)) = -1; 
-                        else
-                            A(ihead, navB(i,s,m,t-1)) = 1; 
-                        end
-                        A(ihead, navC(i,s,m,t)) = 1; 
-                    end
-                    b(ihead) = 1;
+%     for s = 1:S
+%         for t = 2:T
+%             for m = 1:M
+%                 for i = 1:I
+%                     for s1 = 1:S
+%                         if s1 ~= s
+%                             A(ihead, navB(i,s,m,t-1)) = -1; 
+%                         else
+%                             A(ihead, navB(i,s,m,t-1)) = 1; 
+%                         end
+%                         A(ihead, navC(i,s,m,t)) = 1; 
+%                     end
+%                     b(ihead) = 1;
+% 
+%                     ihead = ihead + 1;
+%                 end
+%             end
+%         end
+%     end
 
-                    ihead = ihead + 1;
-                end
-            end
-        end
-    end
-    display("Fourth constraint");
     % Fourth constraint: vm allocation constraint
-    for t = 1:T
-        for i = 1:I
-            for s = 1:S
-                N_is = scenario.mdcs(s).vms(i).n_cores;
-                A(ihead, navA(i,s,t)) = 1;
-                b(ihead) = N_is;
-            end
-        end
-        ihead = ihead + 1;
-    end
-    display("Fifth constraint");
+%     for t = 1:T
+%         for i = 1:I
+%             for s = 1:S
+%                 N_is = scenario.mdcs(s).vms(i).n_cores;
+%                 A(ihead, navA(i,s,t)) = 1;
+%                 b(ihead) = N_is;
+%             end
+%         end
+%         ihead = ihead + 1;
+%     end
+    
+    % Aeq/beq matrix
     % Fifth constraint: association (eq constraint)
     ihead = 1;
     for m = 1:M
@@ -141,36 +149,39 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             for i = 1:I
                 for s = 1:S
                     Aeq(ihead, navB(i,s,m,t)) = 1;
-                    beq(ihead) = 1;
                 end
             end
+            beq(ihead) = 1;
             ihead = ihead + 1;        
         end
     end
-    display("Objective function constraint");
+    
     %% Map the objective function
-    f = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
+    % f = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
+    f = zeros([I*S*T + I*S*M*T, 1]);
     for i = 1:I
         for s = 1:s
             for t = 1:T
                 f(navA(i,s,t)) = scenario.mdcs(s).vms(i).price;
-                for m = 1:M
-                    migration_cost = scenario.mdcs(s).vms(i).price * scenario.K;
-                    f(navC(i,s,m,t)) = migration_cost;
-                end
+                % Migration
+                % for m = 1:M
+                %     migration_cost = scenario.mdcs(s).vms(i).price * scenario.K;
+                %     f(navC(i,s,m,t)) = migration_cost;
+                % end
             end
         end
     end
                     
     %% Set variable (a_is(t), b_ism(t), and c_ism(t)) upper and lower bounds 
-    % Min 0 Max 1
-    u_bound = ones([I*S*T + I*S*M*T + I*S*M*T, 1]);
+    % u_bound = ones([I*S*T + I*S*M*T + I*S*M*T, 1]);
+    u_bound = ones([I*S*T + I*S*M*T, 1]);
     u_bound(1:I*S*T) = 99999999;
-    l_bound = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
+    % l_bound = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
+    l_bound = zeros([I*S*T + I*S*M*T, 1]);
     
     %% Get optimal solution
-    display("Intlinprog execution");
-    [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
+    % [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
+    [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
         
     %% a_ist
     output_a = reshape(vec(1 : I*S*T), [I,S,T]);
@@ -179,6 +190,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     output_b = reshape(vec(I*S*T + 1 : I*S*T + I*S*M*T), [I,S,M,T]);
     
     %% c_ismt
-    output_c = reshape(vec(I*S*T + I*S*M*T + 1 : I*S*T + I*S*M*T + I*S*M*T), [I,S,M,T]);
+    % output_c = reshape(vec(I*S*T + I*S*M*T + 1 : I*S*T + I*S*M*T + I*S*M*T), [I,S,M,T]);
+    output_c = reshape(vec(I*S*T + I*S*M*T + 1 : I*S*T + I*S*M*T), [I,S,M,T]);
     
 end
