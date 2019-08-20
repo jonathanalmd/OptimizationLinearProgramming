@@ -58,13 +58,13 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     % A/b matrix
     % Head declaration for matrix navigation
     ihead = 1;
-    % First constraint: horizontal alocation
+    % Constraint: horizontal allocation
     for i = 1:I
         for s = 1:S
             for t = 1:T
                 for m = 1:M
                     % A(ihead, navB(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W;
-                    A(ihead, navB(i,s,m,t)) = (scenario.transmited_data_mt(m,t) * scenario.W) / (scenario.Phi - (3 * scenario.d_sm(s,m)/scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.vf) );
+                    A(ihead, navB(i,s,m,t)) = (scenario.transmited_data_mt(m,t) * scenario.W) / (scenario.Phi - (3 * scenario.d_sm(s,m)/scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) );
                 end
                 % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
                 % scenario.mdcs(s).vms(i)
@@ -80,7 +80,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         end
     end
     
-    % Second constraint: vertical alocation
+    % Constraint: vertical allocation
     for i = 1:I
         for s = 1:S
             for m = 1:M
@@ -142,7 +142,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
 %     end
     
     % Aeq/beq matrix
-    % Fifth constraint: association (eq constraint)
+    % Constraint: association (eq constraint)
     ihead = 1;
     for m = 1:M
         for t = 1:T

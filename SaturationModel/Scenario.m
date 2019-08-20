@@ -91,6 +91,8 @@ classdef Scenario
         %RTD_ism = prop_delay + trans_delay + hop_delay; -> considerar o de
         %processamento
         %RTD_ism;
+        H = 0.00005; % seconds
+        Phi = 0.003 % seconds
 
         % Time Constraint -- b_ismt (seconds)
         % RTD < sigma
