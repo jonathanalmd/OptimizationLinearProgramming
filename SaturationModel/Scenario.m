@@ -8,7 +8,7 @@ classdef Scenario
     properties
         %% Basic problem inputs
         % Number of sites (hexagons) -- Scenario length
-        n_sites = 7; % 7
+        n_sites = 1; % 7
         % Time slots
         T = 24; % 
 
@@ -69,7 +69,7 @@ classdef Scenario
 
         %% Round-trip Delay (RTD) variables
         % Speed of light: 299.792 km/s or 299792458 m/s
-        c = 299.792;
+        c = 299792458;
         % Distance between an antenna m and an MDC s (km) 
         % d_sm = zeros([S M]);
         d_sm;
@@ -165,11 +165,17 @@ classdef Scenario
             
             % Number of operations for each bit
             obj.W = obj.decoder_recursions * obj.decoder_instructions;
+            obj.W = 100;
             
-            mi1 = 460;
-            sigma1 = 350;
-            mi2 = 180;
-            sigma2 = 130;
+            %mi1 = 460;
+            %sigma1 = 350;
+            %mi2 = 180;
+            %sigma2 = 130;
+            mi1 = 40;
+            sigma1 = 25;
+            mi2 = 30;
+            sigma2 = 20;
+            
             obj.transmited_data_mt = obj.antennaSaturationNorm(mi1,sigma1,mi2,sigma2);
             % Workload = transmited_data_mt * W
 

@@ -64,15 +64,15 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             for t = 1:T
                 for m = 1:M
                     % A(ihead, navB(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W;
-                    A(ihead, navB(i,s,m,t)) = (scenario.transmited_data_mt(m,t) * scenario.W) / (scenario.Phi - (3 * scenario.d_sm(s,m)/scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) );
+                    A(ihead, navB(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) ));
                 end
                 % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
                 % scenario.mdcs(s).vms(i)
                 P_is = scenario.mdcs(s).vms(i).cycles;
-                N_is = scenario.mdcs(s).vms(i).n_cores;
+                % N_is = scenario.mdcs(s).vms(i).n_cores;
                 Ef_is = scenario.mdcs(s).vms(i).efficiency;
-                A(ihead, navA(i,s,t)) = -(P_is * N_is * Ef_is);
-                
+                %A(ihead, navA(i,s,t)) = -(P_is * N_is * Ef_is);
+                A(ihead, navA(i,s,t)) = -(P_is * Ef_is);
                 b(ihead) = 0;
                 
                 ihead = ihead + 1;
@@ -160,7 +160,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     % f = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
     f = zeros([I*S*T + I*S*M*T, 1]);
     for i = 1:I
-        for s = 1:s
+        for s = 1:S
             for t = 1:T
                 f(navA(i,s,t)) = scenario.mdcs(s).vms(i).price;
                 % Migration
@@ -181,7 +181,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     
     %% Get optimal solution
     % [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
-    [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
+    [vec, fval, answer, resume] = intlinprog(f,1 : (I*S*T + I*S*M*T), A, b, Aeq, beq, l_bound, u_bound);
         
     %% a_ist
     output_a = reshape(vec(1 : I*S*T), [I,S,T]);
@@ -191,6 +191,5 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     
     %% c_ismt
     % output_c = reshape(vec(I*S*T + I*S*M*T + 1 : I*S*T + I*S*M*T + I*S*M*T), [I,S,M,T]);
-    output_c = reshape(vec(I*S*T + I*S*M*T + 1 : I*S*T + I*S*M*T), [I,S,M,T]);
     
 end
