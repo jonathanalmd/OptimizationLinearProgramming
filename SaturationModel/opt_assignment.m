@@ -28,8 +28,8 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     S = scenario.S;
     M = scenario.M;
     T = scenario.T;
-    navA = @(i,s,t) sub2ind([I,S,T],i,s,t);
-    navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
+    navA = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t);
+    % navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
     % navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
     
     %% A/Aeq and b/beq constraints matrixes
@@ -40,7 +40,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     
     % Number of columns is according to the decision variables
     % a_is(t) [I*S*T] and b_ism(t) [I*S*M*T]
-    n_constr_cols = I*S*T + I*S*M*T;
+    n_constr_cols = I*S*M*T;
     % n_constr_cols = I*S*T + I*S*M*T + I*S*M*T; % a_is(t), b_ism(t), c_ism(t)
     
     % A definition
@@ -64,17 +64,18 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
             for t = 1:T
                 for m = 1:M
                     % A(ihead, navB(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W;
-                    A(ihead, navB(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) ));
+                    % A(ihead, navB(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) ));
+                    A(ihead, navA(i,s,m,t) = scenario.n_ismt;
                 end
-                % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
-                % scenario.mdcs(s).vms(i)
-                P_is = scenario.mdcs(s).vms(i).cycles;
-                % N_is = scenario.mdcs(s).vms(i).n_cores;
-                Ef_is = scenario.mdcs(s).vms(i).efficiency;
+                % % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
+                % % scenario.mdcs(s).vms(i)
+                % P_is = scenario.mdcs(s).vms(i).cycles;
+                % % N_is = scenario.mdcs(s).vms(i).n_cores;
+                % Ef_is = scenario.mdcs(s).vms(i).efficiency;
                 %A(ihead, navA(i,s,t)) = -(P_is * N_is * Ef_is);
-                A(ihead, navA(i,s,t)) = -(P_is * Ef_is);
-                b(ihead) = 0;
-                
+                % A(ihead, navA(i,s,t)) = -(P_is * Ef_is);
+                % b(ihead) = 0;
+                b(ihead) = scenario.N_is;
                 ihead = ihead + 1;
             end
         end
@@ -85,23 +86,26 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         for s = 1:S
             for m = 1:M
                 for t = 1:T
+                    %P_is = scenario.mdcs(s).vms(i).cycles;
+                    %Ef_is = scenario.mdcs(s).vms(i).efficiency;
+                    %t_proc = (scenario.W * scenario.block_len) / (P_is * Ef_is); 
+                    
+                    % % 1) Propagation Delay
+                    %prop_delay = (3 * scenario.d_sm(s,m)) / scenario.c;
+                    % % 2) Transmission Delay
+                    % trans_delay = scenario.block_len / scenario.fiber_flow;
+                    % 3) Hops Delay
+                    % hop_delay = floor(scenario.d_sm(s,m) / (scenario.d_hops));
+                    % % Delays
+                    % delays = prop_delay + trans_delay + hop_delay;
+                    
+                    % A(ihead, navB(i,s,m,t)) = -(t_proc + (delays * 2)); % RTD_ism
+                    
+                    % b(ihead) = scenario.sigma;
                     P_is = scenario.mdcs(s).vms(i).cycles;
                     Ef_is = scenario.mdcs(s).vms(i).efficiency;
-                    t_proc = (scenario.W * scenario.block_len) / (P_is * Ef_is); 
-                    
-                    % 1) Propagation Delay
-                    prop_delay = (3 * scenario.d_sm(s,m)) / scenario.c;
-                    % 2) Transmission Delay
-                    trans_delay = scenario.block_len / scenario.fiber_flow;
-                    % 3) Hops Delay
-                    hop_delay = floor(scenario.d_sm(s,m) / (scenario.d_hops));
-                    % Delays
-                    delays = prop_delay + trans_delay + hop_delay;
-            
-                    A(ihead, navB(i,s,m,t)) = -(t_proc + (delays * 2)); % RTD_ism
-                    
-                    b(ihead) = scenario.sigma;
-                    
+                    A(ihead, navA(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) / P_is * Ef_is * scenario.n_ismt;
+                    b(ihead) = 1;
                     ihead = ihead + 1;
                 end
             end
@@ -148,7 +152,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         for t = 1:T
             for i = 1:I
                 for s = 1:S
-                    Aeq(ihead, navB(i,s,m,t)) = 1;
+                    Aeq(ihead, navA(i,s,m,t)) = 1;
                 end
             end
             beq(ihead) = 1;
@@ -158,36 +162,43 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     
     %% Map the objective function
     % f = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
-    f = zeros([I*S*T + I*S*M*T, 1]);
+    % f = zeros([I*S*T + I*S*M*T, 1]);
+    f = zeros([I*S*M*T, 1]);
     for i = 1:I
         for s = 1:S
-            for t = 1:T
-                f(navA(i,s,t)) = scenario.mdcs(s).vms(i).price;
-                % Migration
-                % for m = 1:M
-                %     migration_cost = scenario.mdcs(s).vms(i).price * scenario.K;
-                %     f(navC(i,s,m,t)) = migration_cost;
-                % end
+            for m = 1:M
+                for t = 1:T
+                    % f(navA(i,s,t)) = scenario.mdcs(s).vms(i).price;
+                    % Migration
+                    % for m = 1:M
+                    %     migration_cost = scenario.mdcs(s).vms(i).price * scenario.K;
+                    %     f(navC(i,s,m,t)) = migration_cost;
+                    % end
+                end
             end
         end
     end
                     
     %% Set variable (a_is(t), b_ism(t), and c_ism(t)) upper and lower bounds 
     % u_bound = ones([I*S*T + I*S*M*T + I*S*M*T, 1]);
-    u_bound = ones([I*S*T + I*S*M*T, 1]);
-    u_bound(1:I*S*T) = 99999999;
+    % u_bound = ones([I*S*T + I*S*M*T, 1]);
+    % u_bound(1:I*S*T) = 99999999;
+    u_bound(1:I*S*M*T) = 99999999;
     % l_bound = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
-    l_bound = zeros([I*S*T + I*S*M*T, 1]);
+    % l_bound = zeros([I*S*T + I*S*M*T, 1]);
+    l_bound = zeros([I*S*M*T, 1]);
     
     %% Get optimal solution
     % [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
-    [vec, fval, answer, resume] = intlinprog(f,1 : (I*S*T + I*S*M*T), A, b, Aeq, beq, l_bound, u_bound);
+    % [vec, fval, answer, resume] = intlinprog(f,1 : (I*S*T + I*S*M*T), A, b, Aeq, beq, l_bound, u_bound);
+    [vec, fval, answer, resume] = intlinprog(f,1 : (I*S*M*T), A, b, Aeq, beq, l_bound, u_bound);
         
     %% a_ist
-    output_a = reshape(vec(1 : I*S*T), [I,S,T]);
+    % output_a = reshape(vec(1 : I*S*T), [I,S,T]);
+    output_a = reshape(vec(1 : I*S*M*T), [I,S,M,T]);
     
     %% b_ismt
-    output_b = reshape(vec(I*S*T + 1 : I*S*T + I*S*M*T), [I,S,M,T]);
+    % output_b = reshape(vec(I*S*T + 1 : I*S*T + I*S*M*T), [I,S,M,T]);
     
     %% c_ismt
     % output_c = reshape(vec(I*S*T + I*S*M*T + 1 : I*S*T + I*S*M*T + I*S*M*T), [I,S,M,T]);
