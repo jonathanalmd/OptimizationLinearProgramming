@@ -8,7 +8,7 @@ classdef Scenario
     properties
         %% Basic problem inputs
         % Number of sites (hexagons) -- Scenario length
-        n_sites = 1; % 7
+        n_sites = 7; % 7
         % Time slots
         T = 24; % 
 
