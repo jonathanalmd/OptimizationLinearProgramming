@@ -8,7 +8,7 @@ classdef Scenario
     properties
         %% Basic problem inputs
         % Number of sites (hexagons) -- Scenario length
-        n_sites = 7; % 7
+        n_sites = 1; % 7
         % Time slots
         T = 24; % 
 
@@ -93,13 +93,16 @@ classdef Scenario
         %RTD_ism;
         H = 0.00005; % seconds
         Phi = 0.003 % seconds
-
+        
+        
+        
         % Time Constraint -- b_ismt (seconds)
         % RTD < sigma
         sigma = 0.003;
     
         K = 0.1;
-       
+                
+        
         dmacromacro = 1000; % 500
         dmacrocluster = 105;
         dsmallsmall = 20;
@@ -115,7 +118,6 @@ classdef Scenario
         dmacroradius;
         
         index = 1;
-
     end
     
     %% Methods
@@ -178,7 +180,8 @@ classdef Scenario
             
             obj.transmited_data_mt = obj.antennaSaturationNorm(mi1,sigma1,mi2,sigma2);
             % Workload = transmited_data_mt * W
-
+                        
+            
             % Number of operations 
             obj.n_operations = obj.W * obj.block_len;
 

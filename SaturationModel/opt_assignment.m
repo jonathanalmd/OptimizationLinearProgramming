@@ -8,10 +8,12 @@
 % @info     MSc Research at Computer Networks Lab (COMNET) -- University of Bras�lia (UnB)
 % @brief	MatLab code for the saturation problem
 
+
 %% Create Scenario
 %scenario = Scenario;
 %scenario = scenario.start();
 %display(scenario);
+
 
 %% Saturation Problem
 function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenario)
@@ -31,6 +33,8 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     navA = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t);
     % navB = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T;
     % navC = @(i,s,m,t) sub2ind([I,S,M,T],i,s,m,t) + I*S*T + I*S*M*T;
+    %% Get min cores
+    n_ismt = minCores(scenario);
     
     %% A/Aeq and b/beq constraints matrixes
     % One line for each constraint
@@ -65,7 +69,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
                 for m = 1:M
                     % A(ihead, navB(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W;
                     % A(ihead, navB(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) ));
-                    A(ihead, navA(i,s,m,t) = scenario.n_ismt;
+                    A(ihead, navA(i,s,m,t)) = n_ismt(i,s,m,t);
                 end
                 % % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
                 % % scenario.mdcs(s).vms(i)
@@ -75,7 +79,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
                 %A(ihead, navA(i,s,t)) = -(P_is * N_is * Ef_is);
                 % A(ihead, navA(i,s,t)) = -(P_is * Ef_is);
                 % b(ihead) = 0;
-                b(ihead) = scenario.N_is;
+                b(ihead) = scenario.mdcs(s).vms(i).n_cores;
                 ihead = ihead + 1;
             end
         end
@@ -104,8 +108,9 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
                     % b(ihead) = scenario.sigma;
                     P_is = scenario.mdcs(s).vms(i).cycles;
                     Ef_is = scenario.mdcs(s).vms(i).efficiency;
-                    A(ihead, navA(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) / P_is * Ef_is * scenario.n_ismt;
+                    A(ihead, navA(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) / P_is * Ef_is * n_ismt(i,s,m,t);
                     b(ihead) = 1;
+                    
                     ihead = ihead + 1;
                 end
             end
@@ -168,6 +173,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         for s = 1:S
             for m = 1:M
                 for t = 1:T
+                    f(navA(i,s,m,t)) = n_ismt(i,s,m,t) * scenario.mdcs(s).vms(i).price / (scenario.d_sm(s,m) * 1000);
                     % f(navA(i,s,t)) = scenario.mdcs(s).vms(i).price;
                     % Migration
                     % for m = 1:M
@@ -183,7 +189,8 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     % u_bound = ones([I*S*T + I*S*M*T + I*S*M*T, 1]);
     % u_bound = ones([I*S*T + I*S*M*T, 1]);
     % u_bound(1:I*S*T) = 99999999;
-    u_bound(1:I*S*M*T) = 99999999;
+    % u_bound(1:I*S*M*T) = 99999999;
+    u_bound = ones([I*S*M*T, 1]);
     % l_bound = zeros([I*S*T + I*S*M*T + I*S*M*T, 1]);
     % l_bound = zeros([I*S*T + I*S*M*T, 1]);
     l_bound = zeros([I*S*M*T, 1]);
