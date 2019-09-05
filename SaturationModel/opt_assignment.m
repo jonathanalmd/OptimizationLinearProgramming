@@ -69,7 +69,11 @@ function [vec, fval, answer, resume, n_ismt, output_a] = opt_assignment(scenario
                 for m = 1:M
                     % A(ihead, navB(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W;
                     % A(ihead, navB(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) ));
-                    A(ihead, navA(i,s,m,t)) = n_ismt(i,s,m,t);
+                    if n_ismt(i,s,m,t) > 0
+                        A(ihead, navA(i,s,m,t)) = n_ismt(i,s,m,t);
+                    else
+                        A(ihead, navA(i,s,m,t)) = 99999999;
+                    end
                 end
                 % % A(ihead, navA(i,s,t)) = -(P_is(i,s) * N_is(i,s) * Ef_is(i,s));
                 % % scenario.mdcs(s).vms(i)
@@ -108,9 +112,14 @@ function [vec, fval, answer, resume, n_ismt, output_a] = opt_assignment(scenario
                     % b(ihead) = scenario.sigma;
                     P_is = scenario.mdcs(s).vms(i).cycles;
                     Ef_is = scenario.mdcs(s).vms(i).efficiency;
+                    N_is = scenario.mdcs(s).vms(i).n_cores;
                     % A(ihead, navA(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) / P_is * Ef_is * n_ismt(i,s,m,t);
-                    A(ihead, navA(i,s,m,t)) = -(P_is * Ef_is * n_ismt(i,s,m,t) / ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) );
-                    b(ihead) = 1;
+                    % A(ihead, navA(i,s,m,t)) = -(P_is * Ef_is * n_ismt(i,s,m,t) / ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) );
+                    % A(ihead, navA(i,s,m,t)) = -((scenario.transmited_data_mt(m,t) * scenario.W / (scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) - (P_is * Ef_is * n_ismt(i,s,m,t)) );
+                    % A(ihead, navA(i,s,m,t)) = -((P_is * Ef_is * n_ismt(i,s,m,t)) - (scenario.transmited_data_mt(m,t) * scenario.W / (scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )));
+                    A(ihead, navA(i,s,m,t)) = scenario.transmited_data_mt(m,t) * scenario.W / (scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) );
+                    A(ihead, navA(i,s,m,t)) = A(ihead, navA(i,s,m,t)) - (P_is * Ef_is * n_ismt(i,s,m,t) * N_is);
+                    b(ihead) = 0;
                     
                     ihead = ihead + 1;
                 end
