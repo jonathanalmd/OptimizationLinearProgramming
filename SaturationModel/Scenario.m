@@ -167,7 +167,7 @@ classdef Scenario
             
             % Number of operations for each bit
             obj.W = obj.decoder_recursions * obj.decoder_instructions;
-            obj.W = 100;
+            obj.W = 120;
             
             %mi1 = 460;
             %sigma1 = 350;

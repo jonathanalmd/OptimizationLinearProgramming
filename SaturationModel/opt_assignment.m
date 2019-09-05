@@ -16,7 +16,7 @@
 
 
 %% Saturation Problem
-function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenario)
+function [vec, fval, answer, resume, n_ismt, output_a] = opt_assignment(scenario)
     %% Description
     % Function Output: vec, fval, answer, resume, output_a, output_b
     % Function Parameters: scenario obj
@@ -79,7 +79,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
                 %A(ihead, navA(i,s,t)) = -(P_is * N_is * Ef_is);
                 % A(ihead, navA(i,s,t)) = -(P_is * Ef_is);
                 % b(ihead) = 0;
-                b(ihead) = scenario.mdcs(s).vms(i).n_cores;
+                b(ihead) = scenario.mdcs(s).vms(i).n_cores * 10;
                 ihead = ihead + 1;
             end
         end
@@ -108,7 +108,8 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
                     % b(ihead) = scenario.sigma;
                     P_is = scenario.mdcs(s).vms(i).cycles;
                     Ef_is = scenario.mdcs(s).vms(i).efficiency;
-                    A(ihead, navA(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) / P_is * Ef_is * n_ismt(i,s,m,t);
+                    % A(ihead, navA(i,s,m,t)) = ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) / P_is * Ef_is * n_ismt(i,s,m,t);
+                    A(ihead, navA(i,s,m,t)) = -(P_is * Ef_is * n_ismt(i,s,m,t) / ((scenario.transmited_data_mt(m,t) * scenario.W)) / ((scenario.Phi - (3 * scenario.d_sm(s,m) / scenario.c) - (2 * scenario.H * scenario.d_sm(s,m) / scenario.d_hops) )) );
                     b(ihead) = 1;
                     
                     ihead = ihead + 1;
@@ -173,7 +174,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
         for s = 1:S
             for m = 1:M
                 for t = 1:T
-                    f(navA(i,s,m,t)) = n_ismt(i,s,m,t) * scenario.mdcs(s).vms(i).price / (scenario.d_sm(s,m) * 1000);
+                    f(navA(i,s,m,t)) = n_ismt(i,s,m,t) * scenario.mdcs(s).vms(i).price; %/ (scenario.d_sm(s,m)); % * 1000);
                     % f(navA(i,s,t)) = scenario.mdcs(s).vms(i).price;
                     % Migration
                     % for m = 1:M
@@ -198,7 +199,7 @@ function [vec, fval, answer, resume, output_a, output_b] = opt_assignment(scenar
     %% Get optimal solution
     % [vec, fval, answer, resume] = intlinprog(f,1 : I*S*T + I*S*M*T + I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
     % [vec, fval, answer, resume] = intlinprog(f,1 : (I*S*T + I*S*M*T), A, b, Aeq, beq, l_bound, u_bound);
-    [vec, fval, answer, resume] = intlinprog(f,1 : (I*S*M*T), A, b, Aeq, beq, l_bound, u_bound);
+    [vec, fval, answer, resume] = intlinprog(f,1 : I*S*M*T, A, b, Aeq, beq, l_bound, u_bound);
         
     %% a_ist
     % output_a = reshape(vec(1 : I*S*T), [I,S,T]);
