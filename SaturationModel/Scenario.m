@@ -83,7 +83,7 @@ classdef Scenario
         % trans_delay = block_len / fiber_flow;
         trans_delay;
         % Hops distance (km)
-        d_hops = 50;
+        d_hops = 50*1000; % (m)
         % 3) Hops Delay
         % hop_delay = floor(d_sm / (d_hops/10));
         hop_delay;
@@ -92,7 +92,7 @@ classdef Scenario
         %processamento
         %RTD_ism;
         H = 0.00005; % seconds
-        Phi = 0.003 % seconds
+        Phi = 0.0027 % seconds
         
         
         
@@ -294,7 +294,7 @@ classdef Scenario
                 end
                 time_var = time_var + 1;
             end
-            % bar(1:24, transmited_data_mt(1,:));
+            bar(1:24, transmited_data_mt(1,:));
             transmited_data_mt = transmited_data_mt * 10^6;
         end
         
